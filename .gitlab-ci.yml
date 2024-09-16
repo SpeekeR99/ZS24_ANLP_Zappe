@@ -1,0 +1,33 @@
+stages:
+   - test
+   - results
+
+test_job:
+    stage: test
+    rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+    script: 
+        - pip3 install -r requirements.txt
+        - python3 -m wandb login ff0893cd7836ab91e9386aa470ed0837f2479f9b
+        - rm -f results/*.json
+        - sh run_tests.sh
+    artifacts:
+        when: always
+        paths:
+        - results/*.json
+
+
+results_job:
+    stage: results
+    rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    script: 
+        - pip3 install -r requirements.txt
+        - cp ~/authenticate-git.sh .
+        - ./authenticate-git.sh
+        - cp ~/generate_results_report.py .
+        - cp ~/repository_generator.py .
+        - cp ~/students.csv .
+        - cp ~/deadlines.cfg .
+        - python3 generate_results_report.py --project-prefix ANLP2024
+
