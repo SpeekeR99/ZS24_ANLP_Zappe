@@ -29,5 +29,5 @@ results_job:
         - cp ~/repository_generator.py .
         - cp ~/students.csv .
         - cp ~/deadlines.cfg .
-        - python3 generate_results_report.py --project-prefix ANLP2024
+        - python3 generate_results_report.py --project-prefix anlp-2024
 
