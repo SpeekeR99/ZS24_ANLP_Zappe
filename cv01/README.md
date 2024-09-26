@@ -24,18 +24,44 @@ Complete missing parts and design clear interface for experimenting.
 ### Dataset Analysis **[1pt]**
 Create histogram of classes in the dataset. 
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 ![Alt text](./training_targets.png?raw=true "Classes in training dataset")
 ![Alt text](./testing_targets.png?raw=true "Classes in testing dataset")
 
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Baseline analysis **[1.5pt]**
 How would look accucary metric for **random model** and **majority class model**(returns only majority class as an output)
 
-__MISSING__ 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+Random model always returns a random class -- since the dataset is balanced (look above -- histograms), we can simply calculate the accuracy as 1 / number_of_classes.
+Theoretically the random model should have around 10 % accuracy, since there are 10 classes in the MNIST dataset
+
+Majority class model always returns the majority class -- from the histograms above, we can clearly see that the majority class is the class 1.
+Since the dataset is almost well balanced, we can assume that the accuracy is going to be something around 10 % too (I'm expecting a little over 10 %, 
+since the class 1 is majority class, so maybe 10.5 %, or even 11 %)
+
+I've implemented this in the `baseline_analysis.py` script and the results from the script are as follows:
+- Random model accuracy: 0.1000 (on average -- of course this is seed dependent)
+- Majority class model accuracy: 0.1135 (this number is always the same, obviously)
+
+![#008000](https://placehold.co/16x16/008000/008000.png) `Answer end`
 
 Is there any drawback? Can we use something better, why?
 
-__MISSING__ 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+Main drawback is that those accuracies are not very good -- those models are not very good
+
+Those models are good for baseline comparison -- when I have some great new model, I can see if it truly is that great
+based on comparing it with those models. If accuracy of my model is worse than random model (or majority class model),
+then the awesome model isn't that awesome after all
+
+Of course we can use something better -- for example some simple neural network, or even better, some pre-trained models, LLMs etc.
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 1. Implement missing fragments in template main01.py
 2. Implement 3-layer MLP with ReLU activation function **CF#Dense** 
