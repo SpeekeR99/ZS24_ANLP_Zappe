@@ -24,7 +24,8 @@ Complete missing parts and design clear interface for experimenting.
 ### Dataset Analysis **[1pt]**
 Create histogram of classes in the dataset. 
 
-__MISSING__ 
+![Alt text](./training_targets.png?raw=true "Classes in training dataset")
+![Alt text](./testing_targets.png?raw=true "Classes in testing dataset")
 
 
 ### Baseline analysis **[1.5pt]**

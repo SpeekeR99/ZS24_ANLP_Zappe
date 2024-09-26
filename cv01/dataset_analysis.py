@@ -16,15 +16,19 @@ def main():
     # Histogram of training targets (classes)
     plt.hist(training_targets, bins=np.arange(11) - 0.5, rwidth=0.75)
     plt.title("Training targets histogram")
+    plt.xlabel("Class")
+    plt.ylabel("Count")
     plt.grid()
-    plt.savefig("training_targets.pdf")
+    plt.savefig("training_targets.png")
     plt.show()
 
     # Histogram of testing targets (classes)
     plt.hist(testing_targets, bins=np.arange(11) - 0.5, rwidth=0.75)
     plt.title("Testing targets histogram")
+    plt.xlabel("Class")
+    plt.ylabel("Count")
     plt.grid()
-    plt.savefig("testing_targets.pdf")
+    plt.savefig("testing_targets.png")
     plt.show()
 
 
