@@ -10,7 +10,7 @@ for %%m in %models% do (
         for %%l in %lrs% do (
             for %%d in %dps% do (
                 echo %%m %%o %%l %%d
-                python train.py -model %%m -optimizer %%o -lr %%l -dp %%d
+                python run_cv01.py -model %%m -optimizer %%o -lr %%l -dp %%d
             )
         )
     )
