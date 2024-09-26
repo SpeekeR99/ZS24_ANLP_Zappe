@@ -5,6 +5,6 @@
 #PBS -N anlp_cv01
 
 CONTAINER=/cvmfs/singularity.metacentrum.cz/NGC/PyTorch:21.03-py3.SIF
-PYTHON_SCRIPT=/storage/plzen1/home/zapped99/anlp/cv01/run_cv01.py
+PYTHON_SCRIPT=/storage/plzen1/home/zapped99/anlp/anlp-2024_zappe_dominik/run_cv01.py
 
 singularity run $CONTAINER python $PYTHON_SCRIPT -model $m -optimizer $o -lr $l -dp $d
