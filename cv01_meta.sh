@@ -7,4 +7,7 @@
 CONTAINER=/cvmfs/singularity.metacentrum.cz/NGC/PyTorch:21.03-py3.SIF
 PYTHON_SCRIPT=/storage/plzen1/home/zapped99/anlp/anlp-2024_zappe_dominik/run_cv01.py
 
+singularity run $CONTAINER pip install wandb --user
+singularity run $CONTAINER python -m wandb login --relogin ff0893cd7836ab91e9386aa470ed0837f2479f9b
+
 singularity run $CONTAINER python $PYTHON_SCRIPT -model $m -optimizer $o -lr $l -dp $d
