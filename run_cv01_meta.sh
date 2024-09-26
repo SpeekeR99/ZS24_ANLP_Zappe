@@ -10,7 +10,7 @@ for m in "${models[@]}"; do
         for l in "${lrs[@]}"; do
             for d in "${dps[@]}"; do
                 echo $m $o $l $d
-                qsub cv01_meta.sh
+                qsub -v m="$m",o="$o",l="$l",d="$d" cv01_meta.sh
             done
         done
     done
