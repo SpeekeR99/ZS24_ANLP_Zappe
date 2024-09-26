@@ -17,24 +17,30 @@ import matplotlib.pyplot as plt
 
 
 class DenseNet(nn.Module):
-    def __init__(self):
+    def __init__(self, dp=.2):
         super(DenseNet, self).__init__()
         # TODO CF#Dense : definujte síť s 3 lineárními vrstvami, správnou velikost první dopočítejte z velikosti vstupu
         # Další velikosti vrstev nastavte na 128x128 nakonec aplikujte softmax
-        # self.linear1 = nn.Linear(in_features,out_features)
-        # self.linear2 = nn.Linear(in_features,out_features)
-        # self.linear3 = nn.Linear(in_features,out_features)
+        in_features = 28 * 28
+        other_features = 128
+        self.linear1 = nn.Linear(in_features, other_features)
+        self.linear2 = nn.Linear(other_features, other_features)
+        self.linear3 = nn.Linear(other_features, other_features)
+        self.dropout1 = nn.Dropout(dp)
+        self.dropout2 = nn.Dropout(dp)
 
     def forward(self, x):
-        # obrázek musíme nejprve "rozbalit" do 1D vektoru uděláme to ale až od první dimenze, protože první dimenze je batch a
-        # tu chceme zachovat
+        # obrázek musíme nejprve "rozbalit" do 1D vektoru uděláme to ale až od první dimenze, protože první dimenze
+        # je batch a tu chceme zachovat
         x = x.flatten(1)
 
         # poté postupně aplikujeme lineární vrstvy a aktivační funkce
         x = self.linear1(x)
         x = F.relu(x)
+        x = self.dropout1(x)
         x = self.linear2(x)
         x = F.relu(x)
+        x = self.dropout2(x)
         x = self.linear3(x)
 
         output = F.log_softmax(x, dim=1)
@@ -85,7 +91,7 @@ def test(model, device, test_loader, config):
             total += output.size()[0]
             if i * config["batch_size"] == SAMPLES:
                 break
-    test_loss /= total  ## delit totalem ..
+    test_loss /= total  # delit totalem
     acc = 100. * correct / total
     print(f"test: avg-loss: {test_loss:.4f}, Accuracy: {correct}/{total} ({acc:.0f}%)\n")
     return test_loss, acc
@@ -106,16 +112,16 @@ def count_norm(model_params):
 
 def main(config: dict):
     # ukažme rozdíl cpu a gpu
-    device = "cuda"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
-#    wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv01"], config=config)  
-
+    wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv01"], config=config)
 
     EPOCHS = 2
     BATCH_SIZE = config["batch_size"]
     LOG_INTERVAL = 1
 
-    LR = 0.01
+    LR = config["lr"]
+    DP = config["dp"]
 
     config["use_normalization"] = False
 
@@ -123,17 +129,23 @@ def main(config: dict):
         transforms.ToTensor(),
     ])
 
-
     dataset1 = datasets.MNIST('data', train=True, download=True, transform=transform)
     dataset2 = datasets.MNIST('data', train=False, transform=transform)
 
     train_loader = torch.utils.data.DataLoader(dataset1, batch_size=BATCH_SIZE, shuffle=True)
     test_loader = torch.utils.data.DataLoader(dataset2, batch_size=BATCH_SIZE, shuffle=True)
 
-    # model = Net().to(device)
-    # wandb.watch(model, log="all")
-    # optimizer = optim.SGD(model.parameters(), lr=LR)
+    if config["model"] == "dense":
+        model = DenseNet(dp=DP).to(device)
+    elif config["model"] == "cnn":
+        model = Net(dp=DP).to(device)
 
+    wandb.watch(model, log="all")
+
+    if config["optimizer"] == "sgd":
+        optimizer = optim.SGD(model.parameters(), lr=LR)
+    elif config["optimizer"] == "adam":
+        optimizer = optim.Adam(model.parameters(), lr=LR)
 
     # training loop
     for epoch in range(EPOCHS):
@@ -148,29 +160,26 @@ def main(config: dict):
             # print(data[0])
             # print(data[0].shape)
 
+            optimizer.zero_grad()
+            output = model(data)  # forward
 
-#            optimizer.zero_grad()  
-#            output = model(data)  # forward                       
+            norm = count_norm(model.parameters())
 
-#            norm = count_norm(model.parameters())  
+            loss = F.nll_loss(output, target)
 
-#            loss = F.nll_loss(output, target)  
+            loss.backward()
+            optimizer.step()
 
-#            loss.backward()  
-#            optimizer.step()  
+            print(f"e{epoch} b{batch_idx} s{batch_idx * BATCH_SIZE}]\t"  
+                  f"Loss: {loss.item():.6f}")
+            wandb.log({"train_loss": loss.item()})
 
-#            print(f"e{epoch} b{batch_idx} s{batch_idx * BATCH_SIZE}]\t"  
-#                  f"Loss: {loss.item():.6f}")  
-
-
-#            if batch_idx % LOG_INTERVAL == LOG_INTERVAL - 1:  
-#                model.eval()  
-#                test_loss, test_acc = test(model, device, test_loader, config)  
-#                model.train()  
-
-
-
-
+            # Evaluation
+            if batch_idx % LOG_INTERVAL == LOG_INTERVAL - 1:
+                model.eval()
+                test_loss, test_acc = test(model, device, test_loader, config)
+                wandb.log({"test_loss": test_loss, "test_acc": test_acc})
+                model.train()
 
 
 if __name__ == '__main__':
@@ -179,4 +188,3 @@ if __name__ == '__main__':
     print(config)
     # add parameters lr,optimizer,dp
     main(config)
-
