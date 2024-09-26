@@ -93,7 +93,7 @@ def test(model, device, test_loader, config):
                 break
     test_loss /= total  # delit totalem
     acc = 100. * correct / total
-    print(f"test: avg-loss: {test_loss:.4f}, Accuracy: {correct}/{total} ({acc:.0f}%)\n")
+    # print(f"test: avg-loss: {test_loss:.4f}, Accuracy: {correct}/{total} ({acc:.0f}%)\n")
     return test_loss, acc
 
 
@@ -104,7 +104,7 @@ def count_norm(model_params):
             param_norm = p.grad.detach().data.norm(2)
             total_norm += param_norm.item() ** 2
         else:
-            print("NO GRAD")
+            # print("NO GRAD")
             pass
     total_norm = total_norm ** 0.5
     return total_norm
@@ -170,8 +170,8 @@ def main(config: dict):
             loss.backward()
             optimizer.step()
 
-            print(f"e{epoch} b{batch_idx} s{batch_idx * BATCH_SIZE}]\t"  
-                  f"Loss: {loss.item():.6f}")
+            # print(f"e{epoch} b{batch_idx} s{batch_idx * BATCH_SIZE}]\t"
+            #       f"Loss: {loss.item():.6f}")
             wandb.log({"train_loss": loss.item()})
 
             # Evaluation
