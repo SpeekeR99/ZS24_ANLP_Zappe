@@ -19,7 +19,7 @@ def main():
     plt.xlabel("Class")
     plt.ylabel("Count")
     plt.grid()
-    plt.savefig("training_targets.png")
+    plt.savefig("training_targets.svg")
     plt.show()
 
     # Histogram of testing targets (classes)
@@ -28,7 +28,7 @@ def main():
     plt.xlabel("Class")
     plt.ylabel("Count")
     plt.grid()
-    plt.savefig("testing_targets.png")
+    plt.savefig("testing_targets.svg")
     plt.show()
 
 

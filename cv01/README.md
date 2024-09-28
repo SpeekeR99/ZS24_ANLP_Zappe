@@ -17,8 +17,6 @@ Complete missing parts and design clear interface for experimenting.
 3. For easy login and testing use environment variable WANDB_API_KEY 
 4. Run minimalistic hello world on MetaCentrum
 
-
-
 ## Individual work **[13pt in total]**
 
 ### Dataset Analysis **[1pt]**
@@ -26,8 +24,8 @@ Create histogram of classes in the dataset.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-![Alt text](./training_targets.png?raw=true "Classes in training dataset")
-![Alt text](./testing_targets.png?raw=true "Classes in testing dataset")
+![Alt text](./training_targets.svg?raw=true "Classes in training dataset")
+![Alt text](./testing_targets.svg?raw=true "Classes in testing dataset")
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -77,26 +75,31 @@ Of course we can use something better -- for example some simple neural network,
 
    Each experiment train at least for 2 epochs.
 
- 
-
 4. Utilize MetaCentrum **[3pt]**
 
    For HP search modify attached scripts and utilize cluster MetaCentrum. 
 https://metavo.metacentrum.cz/
 
-
 # My results
 ## Parallel Coordinate Chart with Appropriate Convenient Setup **[0.5pt]**
-Draw parallel coordinate chart with all tunned hyper parameters
+Draw parallel coordinate chart with all tuned hyper parameters
 
 1. Show all your runs **[0.5pt]**
 
-_MISSING_
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+![Alt text](./parallel_chart_all_hyper_params.svg?raw=true "Parallel Coordinate Chart with all Tuned Hyper Parameters")
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 2. Show only runs better than random baseline. **[0.5pt]**
 
-_MISSING_
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+(my baseline is random model, so only models with test accuracy >= 10 % are shown)
+![Alt text](./parallel_chart_all_hyper_params_better_than_random_model.svg?raw=true "Parallel Coordinate Chart with all Tuned Hyper Parameters")
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ## Table of my results **[1pt]**
 1. show 2 best HP configuration for dense and cnn model 
@@ -104,13 +107,27 @@ _MISSING_
 2. add random and majority class models into the result table
 3. mark as bold in the table
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ## Present all konvergent runs **[0.5pt]**
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
 
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
 ## Present all divergent runs **[0.5pt]**
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ## Discussion **[1pt]**
 - Discuss the results. 
@@ -118,12 +135,19 @@ _MISSING_
 - Try to discuss the most interesting points in your work. 
 - Is there something that does not make any sense? Write it here with your thoughts. 
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ## Try to explain why specific configurations works better than others. 
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
 
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 # Something to think about
 
@@ -136,6 +160,3 @@ _MISSING_
 7. Why do the test and train loss start with similar values? Can initial values have any special significance?
 8. Is there any reason to set batch_size differently for train/dev/test?
 9. When is it appropriate to use learning rate (LR) decay?
-
-                                                                   
-
