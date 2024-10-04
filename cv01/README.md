@@ -115,6 +115,29 @@ My 2 best cnn runs were `genial-sky-437` (opt=sgd, lr=0.01, dp=0.5) and `expert-
 
 My 2 best dense runs were `denim-paper-195` (opt=sgd, lr=0.1, dp=0.5) and `super-energy-150` (opt=adam, lr=0.001, dp=0.5)
 
+(the values were taken from the wandb using filters and scalar chart (mean + std dev))
+
+```
+(mean ± std dev (number of runs))
+98.027 ± 1.359 (7 runs)
+98.360 ± 0.719 (9 runs)
+93.512 ± 2.035 (8 runs)
+95.646 ± 0.6406 (7 runs)
+```
+
+(used confidence for confidence interval calculation is 95 %)
+
+| MODEL CONFIG           | ACCURACY ± CONFIDENCE INTERVAL |
+|------------------------|--------------------------------|
+| CNN_SGD_0.01_0.5       | 98.027 ± 1.007                 |
+| **CNN_ADAM_0.001_0.5** | **98.360 ± 0.470**             |
+| DENSE_SGD_0.1_0.5      | 93.512 ± 1.410                 |
+| DENSE_ADAM_0.001_0.5   | 95.646 ± 0.475                 |
+| RANDOM                 | 10.000 ± 0.000                 |
+| MAJORITY CLASS         | 11.350 ± 0.000                 |
+
+(bold marked model is the overall best model)
+
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ## Present all konvergent runs **[0.5pt]**
@@ -176,7 +199,8 @@ This assumption would be wrong according to this graph
 
 ![Alt text](./groupby_dp.svg?raw=true "Test Accuracy - Group by Dropout Probability")
 
-As we can see from the graph, lower dropouts have bigger variance, thus allowing for randomly exceptional runs, whereas higher dropouts tend to have lower variance -- bigger dropout is more stable, but on average worse
+As we can see from the graph, lower dropouts have bigger variance, thus allowing for randomly exceptional runs, whereas higher dropouts tend to have lower variance -- bigger dropout is more stable, but on average worse.
+Which seems weird to me, because my top 2 runs for each model had the biggest possible dropout.
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
