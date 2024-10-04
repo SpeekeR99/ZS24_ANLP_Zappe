@@ -30,7 +30,7 @@ Create histogram of classes in the dataset.
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Baseline analysis **[1.5pt]**
-How would look accucary metric for **random model** and **majority class model**(returns only majority class as an output)
+How would look accuracy metric for **random model** and **majority class model**(returns only majority class as an output)
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
@@ -66,7 +66,6 @@ Of course we can use something better -- for example some simple neural network,
 3. Run Experiments **[3pt]**
    1. Run at least 5 experiments with all possible combinations of following hyper-parameters 
    2. Draw parallel coordinates chart and add image output into output section in this README.md
- 
 
             `model: ["dense", "cnn"]`
             `lr: [0.1, 0.01, 0.001, 0.0001, 0.00001]`
@@ -99,6 +98,9 @@ Draw parallel coordinate chart with all tuned hyper parameters
 (my baseline is random model, so only models with test accuracy >= 10 % are shown)
 ![Alt text](./parallel_chart_all_hyper_params_better_than_random_model.svg?raw=true "Parallel Coordinate Chart with all Tuned Hyper Parameters")
 
+(another baseline was chosen -- only models that have 95% accuracy or more are shown)
+![Alt text](./parallel_chart_all_hyper_params_better_than_95_acc.svg?raw=true "Parallel Coordinate Chart with all Tuned Hyper Parameters")
+
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ## Table of my results **[1pt]**
@@ -109,7 +111,9 @@ Draw parallel coordinate chart with all tuned hyper parameters
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+My 2 best cnn runs were `genial-sky-437` (opt=sgd, lr=0.01, dp=0.5) and `expert-dust-159` (opt=adam, lr=0.001, dp=0.5)
+
+My 2 best dense runs were `denim-paper-195` (opt=sgd, lr=0.1, dp=0.5) and `super-energy-150` (opt=adam, lr=0.001, dp=0.5)
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -117,15 +121,43 @@ _MISSING_
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+These are not "all" the runs, but those are about 50 runs that had exceptionally good test accuracy -- higher than 98 %
+
+![Alt text](./convergent_test_acc.svg?raw=true "Convergent runs")
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+Let's have a closer look on one concrete run -- `wobbly-valley-624` (model=cnn, opt=adam, lr=0.001, dp=0.1)
+
+On the next graphs we can see that the model is so good, that the smoothing of curves makes it look worse than it truly is -- that's an exceptionally good run
+
+![Alt text](./wobbly_valley_acc.svg?raw=true "Wobbly valley accuracy")
+
+![Alt text](./wobbly_valley_loss.svg?raw=true "Wobbly valley loss")
 
 ## Present all divergent runs **[0.5pt]**
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+These are not "all" the runs, but those are about 50 runs that had the test accuracy lower than 20 %
+
+![Alt text](./divergent_test_acc.svg?raw=true "Divergent runs")
+
+If we look at the threshold of about 10 %, we can see a lot of models concentrated around that value and "converged" to it, because they simply learnt to predict either the majority class or a random class
+
+However, we can see some models were trained to be utterly bad -- even worse than random guesses, let's have a closer look at two of them -- concretely `divine-water-470` (model=dense, opt=sgd, lr=0.00001, dp=0.3) and `clear-terrain-489` (model=dense, opt=adam, lr=0.1, dp=0.1)
+- `divine-water-470`: on closer look, this model doesn't appear to be truly divergent, the model only has really low learning rate and he didn't have enough time to learn. The trends in the graphs are not bad, but the scale of Y axis is really small -- the model needs bigger learning rate value
+
+![Alt text](./divine_water_acc.svg?raw=true "Divine water accuracy")
+
+![Alt text](./divine_water_loss.svg?raw=true "Divine water loss")
+
+- `clear-terrain-489`: this model is truly divergent -- the accuracy started off better, than it ended -- the model "diverged" to about 10 %, thus becoming a random model
+   - I am not entirely sure this is "divergent" run, because the model "converged" to something, but I put it here, because it's interesting
+
+![Alt text](./clear_terrain_acc.svg?raw=true "Clear terrain accuracy")
+
+![Alt text](./clear_terrain_loss.svg?raw=true "Clear terrain loss")
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -137,7 +169,14 @@ _MISSING_
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+Generally speaking, we can assume that optimizer `adam` works better with lower learning rates, while `sgd` works better with higher learning rates
+
+From my 2 best runs for each model, we could assume that the networks with higher dropout probability had overall better results.
+This assumption would be wrong according to this graph
+
+![Alt text](./groupby_dp.svg?raw=true "Test Accuracy - Group by Dropout Probability")
+
+As we can see from the graph, lower dropouts have bigger variance, thus allowing for randomly exceptional runs, whereas higher dropouts tend to have lower variance -- bigger dropout is more stable, but on average worse
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
