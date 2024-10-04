@@ -194,13 +194,19 @@ However, we can see some models were trained to be utterly bad -- even worse tha
 
 Generally speaking, we can assume that optimizer `adam` works better with lower learning rates, while `sgd` works better with higher learning rates
 
-From my 2 best runs for each model, we could assume that the networks with higher dropout probability had overall better results.
+From my 2 best runs for each model (table above), we could assume that the networks with higher dropout probability had overall better results.
 This assumption would be wrong according to this graph
 
 ![Alt text](./groupby_dp.svg?raw=true "Test Accuracy - Group by Dropout Probability")
 
 As we can see from the graph, lower dropouts have bigger variance, thus allowing for randomly exceptional runs, whereas higher dropouts tend to have lower variance -- bigger dropout is more stable, but on average worse.
 Which seems weird to me, because my top 2 runs for each model had the biggest possible dropout.
+
+From the table above, we could also assume that cnn models work better for this exact problem, which seems to be true, as supported by the next graph
+
+![Alt text](./groupby_model.svg?raw=true "Test Accuracy - Group by Model")
+
+We can observe from the graph, that cnn models tend to have way bigger variance, than dense models, but even the "average worst" cnn model would be at least as good, as the dense one
 
 On the next two pictures we can see the importance of hyper parameters in relation to accuracy and loss
 
