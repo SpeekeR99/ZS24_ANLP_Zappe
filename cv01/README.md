@@ -204,11 +204,22 @@ Which seems weird to me, because my top 2 runs for each model had the biggest po
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
+On the next two pictures we can see the importance of hyper parameters in relation to accuracy and loss
+
+![Alt text](./parameter_importance_acc.png?raw=true "Importance of hyper parameters - accuracy")
+
+![Alt text](./parameter_importance_loss.png?raw=true "Importance of hyper parameters - loss")
+
+We can clearly see that the learning rate is the most important hyper parameter, followed by optimizer
+
 ## Try to explain why specific configurations works better than others. 
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+Certain configurations work better, because maybe the hyper parameter combination is more suitable for the specific problem and model
+- for example as stated above, it seems like `adam` works better with lower learning rates, while `sgd` works better with higher learning rates
+
+As shown above (importance of hyper parameters), learning rate is the most important hyper parameter, thus choosing the right learning rate value is crucial for the specific configurations to work well
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
