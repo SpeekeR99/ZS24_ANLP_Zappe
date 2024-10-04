@@ -202,8 +202,6 @@ This assumption would be wrong according to this graph
 As we can see from the graph, lower dropouts have bigger variance, thus allowing for randomly exceptional runs, whereas higher dropouts tend to have lower variance -- bigger dropout is more stable, but on average worse.
 Which seems weird to me, because my top 2 runs for each model had the biggest possible dropout.
 
-![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
-
 On the next two pictures we can see the importance of hyper parameters in relation to accuracy and loss
 
 ![Alt text](./parameter_importance_acc.png?raw=true "Importance of hyper parameters - accuracy")
@@ -211,6 +209,8 @@ On the next two pictures we can see the importance of hyper parameters in relati
 ![Alt text](./parameter_importance_loss.png?raw=true "Importance of hyper parameters - loss")
 
 We can clearly see that the learning rate is the most important hyper parameter, followed by optimizer
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ## Try to explain why specific configurations works better than others. 
 
