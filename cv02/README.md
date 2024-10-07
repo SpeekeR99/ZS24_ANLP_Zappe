@@ -49,21 +49,36 @@ Tasks \[20+5 points in total\]
 ### Dataset Statistics **[1pt]**
 Create histogram of pair similarity. 
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 Present mean and std of the dataset. 
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Baseline analysis **[2pt]**
 What would the loss of a model returning a random value between 0 and 6 uniformly look like?
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
+
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 What would the loss of a model returning best prior (most probable output) look like?
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
 
+![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Implement Dummy Model
 1. **Analyze the Dataset**
@@ -89,7 +104,7 @@ _MISSING_
     You should see two new files *word2idx.pckl* and *vecs.pckl*
     **CKPT\#2**
 
-4. **Implement SentenceVectorizer** This module takes text as an input
+3. **Implement SentenceVectorizer** This module takes text as an input
     and transforms it into a sequence of vocabulary ids. **CF\#4**
 
     example:
@@ -100,25 +115,25 @@ _MISSING_
 
     **CKPT\#3**
 
-5. **Implement the DataLoader** Implement a Python iterator that loads data from a text file and yields batches of examples. The iterator should handle a dataset stored in the text file and process it in batches as it iterates.
+4. **Implement the DataLoader** Implement a Python iterator that loads data from a text file and yields batches of examples. The iterator should handle a dataset stored in the text file and process it in batches as it iterates.
 
     Use implemented SentenceVectorizer to preprocess the data during
     initialization. **CF\#5** Implement the `__next__` function to
     return a batch of samples. **CF\#6** Shuffle training dataset after
     each epoch **CF\#7**
 
-6. **Implement training loop**
+5. **Implement training loop**
 
     Implement basic training loop **CF\#8a**. Implement testing for
     model and dataset**CF\#8b**.
 
-7. **Implement DummyModel** DummyModel computes the mean STS value of
+6. **Implement DummyModel** DummyModel computes the mean STS value of
     given dataset in the initialization phase and returns this value as
     a prediction independently on model inputs. **CF\#9**
 
 > **[4pt]**
 
-8. **Implement Neural Network Model**
+7. **Implement Neural Network Model**
 
     #### **CF\#10a** **CF\#10b**
 
@@ -133,7 +148,7 @@ _MISSING_
     ![Visualization of the architecture from task
     7](img/tt-d.png)
 
-9. **Implement Cosine Similarity Measure**
+8. **Implement Cosine Similarity Measure**
 
     Change similarity measure implemented with neural network from
     task-7 to cosine similarity measure (cosine of the angle between
@@ -144,11 +159,11 @@ _MISSING_
 
 > **[4pt]**
 
-10. **Log these:**
+9. **Log these:**
      1. mandatory logged hparams `["random_emb", "emb_training", "emb_projection", "vocab_size", "final_metric", "lr", "optimizer", "batch_size"]`
      2. mandatory metrics : `["train_loss", "test_loss"]`
     
-11. **Run Experiments with different Hyper-parameters** 
+10. **Run Experiments with different Hyper-parameters** 
 
        1. Use randomly initialized embeddings/load pretrained.
    
@@ -166,15 +181,9 @@ _MISSING_
   
            `final_metric = ["cos", "neural"]`
 
-    
+11. **The best performing experiment run at least 10 times** **[2pt]**
 
-13. **The best performing experiment run at least 10 times** **[2pt]**
-        
-    
-
-
-
-14. **Tune More Voluntarily [0-5pt]**
+12. **Tune More Voluntarily [0-5pt]**
 Add more tuning and HP e.g. LR decay, tune neural-metric head, vocab_size, discuss
 
     **[5pt extra]**
@@ -183,33 +192,45 @@ Add more tuning and HP e.g. LR decay, tune neural-metric head, vocab_size, discu
 ## Hyper Parameter Analysis
 
 ### Parallel Coordinate Chart **[1pt]**
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Table of my results **[4pt]**
 1. list all tuned HP
 2. add Dummy model into table
 3. present results with confidence intervals (run more experiments with the same config)
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Discussion **[2pt]**
-_MISSING_
+
 Which HP I tuned? 
+
 Which had the most visible impact? 
+
 Did I use another techniques for more stable or better results? 
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+_MISSING_
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 # To Think About:
 
 ## Practical Question
 
-
 1.  Compare both similarity measures (Fully-connected, cosine):
-
     -   speed of convergence,
-
     -   behaviour in first epochs,
-
     -   accuracy.
 
 2.  Does the size of the effective vocabulary affect the results? How?
@@ -238,7 +259,6 @@ Did I use another techniques for more stable or better results?
 
 ## Theoretical Questions
 
-
 1.  Is it better to train embeddings or not? Why?
 
 2.  Is it important to randomly shuffle the train data, test data? Why?
@@ -249,6 +269,3 @@ Did I use another techniques for more stable or better results?
 
 4.  Can you name similar baselines for other tasks (Sentiment
     classification, NER, Question Answering)?
-
-                                            
-
