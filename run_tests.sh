@@ -3,7 +3,7 @@
 echo "Starting test of the assignment"
 
 export OLD_ASSIGNMENT_TO_RUN="cv01"
-export ASSIGNMENT_TO_RUN="cv01"
+export ASSIGNMENT_TO_RUN="cv02"
 export PYTHONPATH=`pwd`
 
 prepare_cv01 ()
