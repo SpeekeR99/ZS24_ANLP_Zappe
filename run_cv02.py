@@ -5,4 +5,5 @@ if __name__ == '__main__':
         "vocab_size": 20000,
         "random_emb": True
     }
+    print(my_config)
     main(my_config)

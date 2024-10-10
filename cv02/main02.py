@@ -60,10 +60,10 @@ def dataset_vocab_analysis(texts, top_n=-1):
         words = text.split(" ")
         counter.update(words)
 
-    if top_n > 0:
-        return [word for word, _ in counter.most_common(top_n)]
+    if top_n < 0:
+        top_n = len(counter)
 
-    return list(counter)
+    return [word for word, _ in counter.most_common(top_n)]
 
 
 #  emb_file : a source file with the word vectors
@@ -92,13 +92,9 @@ def load_ebs(emb_file, top_n_words: list, wanted_vocab_size, force_rebuild=False
             #  vocabulary ids corresponds to vectors in the matrix
             #  Do not forget to add UNK and PAD tokens into the vocabulary.
 
-            for word in top_n_words:
-                word2idx[word] = idx
-
+            while idx < wanted_vocab_size - 2:
+                word2idx[top_n_words[idx]] = idx
                 idx += 1
-
-                if idx == wanted_vocab_size - 1:
-                    break
 
             word2idx[UNK] = idx
             word2idx[PAD] = idx + 1
@@ -111,10 +107,9 @@ def load_ebs(emb_file, top_n_words: list, wanted_vocab_size, force_rebuild=False
 
                 parts = line.split(" ")
                 word = parts[0]
-                vec = np.array([float(x) for x in parts[1:]])
 
                 if word in word2idx:
-                    vecs[word2idx[word]] = vec
+                    vecs[word2idx[word]] = np.array([float(x) for x in parts[1:]])
 
             # assert len(word2idx) > 6820
             # assert len(vecs) == len(word2idx)
@@ -124,7 +119,7 @@ def load_ebs(emb_file, top_n_words: list, wanted_vocab_size, force_rebuild=False
     return word2idx, vecs
 
 
-# This class is used for transforming text into sequence of ids coresponding to word vectors (using dict word2idx).
+# This class is used for transforming text into sequence of ids corresponding to word vectors (using dict word2idx).
 # It also counts some usable statistics.
 class MySentenceVectorizer():
     def __init__(self, word2idx, max_seq_len):
@@ -135,11 +130,25 @@ class MySentenceVectorizer():
 
     def sent2idx(self, sentence):
         idx = []
-        # todo CF#4
+        # CF#4
         #  Transform sentence into sequence of ids using self.word2idx
         #  Keep the counters self._all_words and self._out_of_vocab up to date
         #  for checking coverage -- it is also used for testing.
+        words = sentence.split(" ")
+        if len(words) > self.max_seq_len:
+            words = words[:self.max_seq_len]
 
+        self._all_words += len(words)
+
+        for word in words:
+            if word in self.word2idx:
+                idx.append(self.word2idx[word])
+            else:
+                idx.append(self.word2idx[UNK])
+                self._out_of_vocab += 1
+
+        while len(idx) < self.max_seq_len:
+            idx.append(self.word2idx[PAD])
 
         return idx
 
@@ -329,8 +338,16 @@ def main(config=None):
 
     word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words, config['vocab_size'])
 
-    # vectorizer = MySentenceVectorizer(word2idx, MAX_SEQ_LEN)
-    #
+    vectorizer = MySentenceVectorizer(word2idx, MAX_SEQ_LEN)
+
+    # inp = "Podle vlády dnes není dalších otázek"
+    # EXPECTED = [259, 642, 249, 66, 252, 3226]
+    # vectorized = vectorizer.sent2idx(inp)
+    # print(vectorized)
+    # print(EXPECTED)
+    # vectorized = vectorized[:len(EXPECTED)]
+    # print(EXPECTED == vectorized)
+
     # train_dataset = DataLoader(vectorizer, TRAIN_DATA, BATCH_SIZE)
     # test_dataset = DataLoader(vectorizer, TEST_DATA, BATCH_SIZE)
     #

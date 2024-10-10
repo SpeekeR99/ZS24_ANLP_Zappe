@@ -155,6 +155,17 @@ But unittest made me do it this way, so I did it.
     You should see two new files *word2idx.pckl* and *vecs.pckl*
     **CKPT\#2**
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+I would personally enjoy more description here, because what exactly is `wanted_vocab_size`?
+Is that the size of the vocabulary with my utility tokens in mind (such as UNK and PAD)?
+Or is that the number of known words, so the size of the vocabulary will be bigger than `wanted_vocab_size` after I add my tokens?
+
+For example for `wanted_vocab_size = 20000` I personally put &lt;UNK&gt; and &lt;PAD&gt; on index 19998 and 19999, but I am not saying that the other solution, where &lt;PAD&gt; and &lt;UNK&gt; would be on 20000 and 20001 is wrong.
+I just don't know which is the correct one.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
 3. **Implement SentenceVectorizer** This module takes text as an input
     and transforms it into a sequence of vocabulary ids. **CF\#4**
 
