@@ -2,7 +2,7 @@
 WORD2IDX = "word2idx.pckl"
 VECS_BUFF = "vecs.pckl"
 
-EMB_FILE = "G:\\fasttext_cc.cs.300.vec"
+EMB_FILE = "fasttext_cc.cs.300.vec"
 
 TRAIN_DATA = "cv02/data/anlp01-sts-free-train.tsv"
 TEST_DATA = "cv02/data/anlp01-sts-free-test.tsv"

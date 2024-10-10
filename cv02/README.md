@@ -131,6 +131,16 @@ Both models have bad losses, because these models are not learning anything, the
 
     **CKPT\#1**
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+I find it really odd that we are not using any lemmatization or stemming in this step.
+
+Basically "Ahoj", "ahoj", "ahoj," "ahoj\n"... are all different words, which is not ideal in my honest opinion.
+
+But unittest made me do it this way, so I did it.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
 2. **Prepare Word Embeddings**.
     https://drive.google.com/file/d/1MTDoyoGRhvLf15yL4NeEbpYLbcBlDZ3c/view?usp=sharing
 

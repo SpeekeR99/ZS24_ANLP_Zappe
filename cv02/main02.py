@@ -1,5 +1,7 @@
 import json
 import os
+import pandas as pd
+import csv
 
 from cv02.consts import EMB_FILE, TRAIN_DATA, TEST_DATA
 
@@ -48,13 +50,19 @@ EPOCH = 7
 run_id = random.randint(100_000, 999_999)
 
 
-
 #  file_path is path to the source file for making statistics
 #  top_n integer : how many most frequent words
 def dataset_vocab_analysis(texts, top_n=-1):
     counter = Counter()
-    # todo CF#1
+    # CF#1
     #  Count occurrences of words in the data set, and prepare a list of top_n words, split words using l.split(" ")
+    for text in texts:
+        words = text.split(" ")
+        counter.update(words)
+
+    if top_n > 0:
+        return [word for word, _ in counter.most_common(top_n)]
+
     return list(counter)
 
 
@@ -69,18 +77,44 @@ def load_ebs(emb_file, top_n_words: list, wanted_vocab_size, force_rebuild=False
             word2idx = pickle.load(idx_fd)
             vecs = pickle.load(vecs_fd)
     else:
-        print("...creting from scratch")
+        print("...creating from scratch")
+
+        if wanted_vocab_size < 0:
+            wanted_vocab_size = len(top_n_words) + 2  # + 2 for UNK and PAD
 
         with open(emb_file, 'r', encoding="utf-8") as emb_fd:
             idx = 0
             word2idx = {}
-            vecs = []
 
-            # todo # CF#2
+            # CF#2
             #  create map of  word->id  of top according to the given top_n_words
-            #  create a matrix as a np.array : word vecotrs
+            #  create a matrix as a np.array : word vectors
             #  vocabulary ids corresponds to vectors in the matrix
             #  Do not forget to add UNK and PAD tokens into the vocabulary.
+
+            for word in top_n_words:
+                word2idx[word] = idx
+
+                idx += 1
+
+                if idx == wanted_vocab_size - 1:
+                    break
+
+            word2idx[UNK] = idx
+            word2idx[PAD] = idx + 1
+
+            vecs = [np.zeros(300) for _ in range(wanted_vocab_size)]
+
+            for i, line in enumerate(emb_fd):
+                if i == 0:
+                    continue
+
+                parts = line.split(" ")
+                word = parts[0]
+                vec = np.array([float(x) for x in parts[1:]])
+
+                if word in word2idx:
+                    vecs[word2idx[word]] = vec
 
             # assert len(word2idx) > 6820
             # assert len(vecs) == len(word2idx)
@@ -286,30 +320,29 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, final_metric):
 
 
 def main(config=None):
-    wandb.init(project=wandb_config["WANDB_PROJECT"], entity=wandb_config["WANDB_ENTITY"], tags=["cv02"], config=config)
+    # wandb.init(project=wandb_config["WANDB_PROJECT"], entity=wandb_config["WANDB_ENTITY"], tags=["cv02"], config=config)
 
     with open(TRAIN_DATA, 'r', encoding="utf-8") as fd:
         train_data_texts = fd.read().split("\n")
 
     top_n_words = dataset_vocab_analysis(train_data_texts, -1)
 
-
     word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words, config['vocab_size'])
 
-    vectorizer = MySentenceVectorizer(word2idx, MAX_SEQ_LEN)
-
-    train_dataset = DataLoader(vectorizer, TRAIN_DATA, BATCH_SIZE)
-    test_dataset = DataLoader(vectorizer, TEST_DATA, BATCH_SIZE)
-
-    dummy_net = DummyModel(train_dataset)
-    dummy_net = dummy_net.to(device)
-
-    loss_function = torch.nn.MSELoss()
-
-    test(test_dataset, dummy_net, loss_function)
-    test(train_dataset, dummy_net, loss_function)
-
-    train_model(train_dataset, test_dataset, word_vectors, loss_function, config["final_metric"])
+    # vectorizer = MySentenceVectorizer(word2idx, MAX_SEQ_LEN)
+    #
+    # train_dataset = DataLoader(vectorizer, TRAIN_DATA, BATCH_SIZE)
+    # test_dataset = DataLoader(vectorizer, TEST_DATA, BATCH_SIZE)
+    #
+    # dummy_net = DummyModel(train_dataset)
+    # dummy_net = dummy_net.to(device)
+    #
+    # loss_function = torch.nn.MSELoss()
+    #
+    # test(test_dataset, dummy_net, loss_function)
+    # test(train_dataset, dummy_net, loss_function)
+    #
+    # train_model(train_dataset, test_dataset, word_vectors, loss_function, config["final_metric"])
 
 
 if __name__ == '__main__':
@@ -318,7 +351,5 @@ if __name__ == '__main__':
         "random_emb": True
     }
 
-
     print(my_config)
     main(my_config)
-
