@@ -67,10 +67,10 @@ Present mean and std of the dataset.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-|            | Mean  | Std Dev |
-|------------|-------|---------|
-| Train      | 2.447 | 2.119   |
-| Test       | 2.660 | 1.810   |
+|       | Mean  | Std Dev |
+|-------|-------|---------|
+| Train | 2.447 | 2.119   |
+| Test  | 2.660 | 1.810   |
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -79,7 +79,20 @@ What would the loss of a model returning a random value between 0 and 6 uniforml
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+The loss very much depends on concrete loss function used.
+
+I personally rounded all the score values to integers (talking about test data), because training data were integers in the range from 0 to 6.
+
+I tested MSE (Mean Squared Error) loss function, as can be seen in the `baseline_analysis.py`. Since talking about "exact" loss "appearance" is difficult, I also added values of the accuracy.
+
+Results are as follows (results are averaged over 5 runs):
+
+### Random Model
+
+|       | Accuracy | MSE Loss |
+|-------|----------|----------|
+| Train | 0.142    | 8.824    |
+| Test  | 0.142    | 7.504    |
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -87,7 +100,24 @@ What would the loss of a model returning best prior (most probable output) look 
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+The loss very much depends on concrete loss function used.
+
+I personally rounded all the score values to integers (talking about test data), because training data were integers in the range from 0 to 6.
+
+I tested MSE (Mean Squared Error) loss function, as can be seen in the `baseline_analysis.py`. Since talking about "exact" loss "appearance" is difficult, I also added values of the accuracy.
+
+Results are as follows:
+
+### Majority class Model
+
+|       | Accuracy | MSE Loss |
+|-------|----------|----------|
+| Train | 0.275    | 10.478   |
+| Test  | 0.078    | 10.352   |
+
+From the two tables above we can clearly see, that the random model worked better for the test data, because the majority class in training data is 0, whereas in the test data, the majority class was 1 (see the histograms above).
+
+Both models have bad losses, because these models are not learning anything, their loss would be "constant" through the epochs and batches and time.
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
