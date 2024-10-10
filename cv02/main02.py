@@ -212,11 +212,7 @@ class DataLoader():
 
         for i in range(self._batch_size):
             if self.pointer >= len(self.a):
-                batch["a"] = np.array(batch["a"])
-                batch["b"] = np.array(batch["b"])
-                batch["sts"] = np.array(batch["sts"])
-
-                return batch
+                raise StopIteration
 
             batch["a"].append(self.a[self.pointer])
             batch["b"].append(self.b[self.pointer])
