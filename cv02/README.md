@@ -51,7 +51,15 @@ Create histogram of pair similarity.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+![Alt text](./img/training_similarity.svg?raw=true "Classes in training dataset")
+![Alt text](./img/testing_similarity.svg?raw=true "Classes in testing dataset")
+
+(Test data pair similarity score is floating point, so the numbers were rounded in order to create a histogram)
+
+(Which is weird to me, because training data pair similarity score is integer, so why do the test data have floats as score?)
+
+We can clearly see from the histogram, that the dataset is not that balanced.
+The training data consists of a lot of 0 scored pairs, while the test data have 0 score as the minority class.
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -59,7 +67,10 @@ Present mean and std of the dataset.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+|            | Mean  | Std Dev |
+|------------|-------|---------|
+| Train      | 2.447 | 2.119   |
+| Test       | 2.660 | 1.810   |
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
