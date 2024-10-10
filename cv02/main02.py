@@ -230,39 +230,48 @@ class DataLoader():
 class TwoTowerModel(torch.nn.Module):
     def __init__(self, vecs, final_metric):
         super(TwoTowerModel, self).__init__()
-        # todo # CF#10a
-        #   Initialize building block for architecture described in the assignment
+        # CF#10a
+        #  Initialize building block for architecture described in the assignment
         self.final_metric = final_metric
 
         # torch.nn.Embedding
         # torch.nn.Linear
 
-
-        self.emb_layer = None
-        self.emb_proj = None
+        self.emb_layer = torch.nn.Embedding.from_pretrained(torch.tensor(np.array(vecs)), freeze=True)
+        self.emb_proj = torch.nn.Linear(300, 128)
 
         print("requires grads? : ", self.emb_layer.weight.requires_grad)
-        self.relu = None
+        self.relu = torch.nn.ReLU()
 
-        self.final_proj_1 = None
-        self.final_proj_2 = None
-
+        self.final_proj_1 = torch.nn.Linear(256, 128)
+        self.final_proj_2 = torch.nn.Linear(128, 1)
 
     def _make_repre(self, idx):
-        avg = None
+        emb = self.emb_layer(idx)
+
+        proj = self.emb_proj(emb.float())
+        proj = self.relu(proj)
+
+        avg = torch.mean(proj, dim=1)
         return avg
 
     def forward(self, batch):
-        repre_a = self._make_repre(batch['a'].to(device))
-        repre_b = self._make_repre(batch['b'].to(device))
+        repre_a = self._make_repre(torch.tensor(batch['a']).to(device))
+        repre_b = self._make_repre(torch.tensor(batch['b']).to(device))
 
-        # todo CF#10b
-        #   Implement forward pass for the model architecture described in the assignment.
-        #   Use both described similarity measures.
+        # CF#10b
+        #  Implement forward pass for the model architecture described in the assignment.
+        #  Use both described similarity measures.
+
         if self.final_metric == "neural":
-            repre = None
+            concat = torch.cat((repre_a, repre_b), dim=1)
+            proj_1 = self.final_proj_1(concat)
+            proj_1 = self.relu(proj_1)
+            proj_2 = self.final_proj_2(proj_1)
+            repre = proj_2
+            repre = repre.squeeze()
         if self.final_metric == "cos":
-            repre = None
+            repre = torch.nn.functional.cosine_similarity(repre_a, repre_b, dim=1)
 
         return repre
 
@@ -303,8 +312,9 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, final_metric):
     net = TwoTowerModel(w2v, final_metric)
     net = net.to(device)
 
-    optimizer = None
-    lr_scheduler = None
+    # TODO: implement optimizer and lr_scheduler
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
+    lr_scheduler = MultiStepLR(optimizer, milestones=[3, 5], gamma=0.1)
 
     train_loss_arr = []
     test_loss_arr = []
@@ -317,20 +327,20 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, final_metric):
     for epoch in range(EPOCH):
         for i, td in enumerate(train_dataset):
             batch = td
-            real_sts = batch['sts'].to(device)
+            real_sts = torch.tensor(batch['sts']).to(device)
 
             optimizer.zero_grad()
 
             predicted_sts = net(batch)
 
-            loss = loss_function(real_sts, predicted_sts)
+            loss = loss_function(real_sts.float(), predicted_sts.float())
 
             loss.backward()
             optimizer.step()
 
             running_loss += loss.item()
             sample += BATCH_SIZE
-            wandb.log({"train_loss": loss, "lr": lr_scheduler.get_last_lr()}, commit=False)
+            # wandb.log({"train_loss": loss, "lr": lr_scheduler.get_last_lr()}, commit=False)
 
             if i % MINIBATCH_SIZE == MINIBATCH_SIZE - 1:
                 train_loss = running_loss / MINIBATCH_SIZE
@@ -343,10 +353,10 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, final_metric):
                 test_loss_arr.append(test_loss)
                 net.train()
 
-                wandb.log({"test_loss": test_loss}, commit=False)
+                # wandb.log({"test_loss": test_loss}, commit=False)
 
                 print(f"e{epoch} b{i}\ttrain_loss:{train_loss}\ttest_loss:{test_loss}\tlr:{lr_scheduler.get_last_lr()}")
-            wandb.log({})
+            # wandb.log({})
 
         lr_scheduler.step()
 
@@ -370,6 +380,7 @@ def main(config=None):
 
     vectorizer = MySentenceVectorizer(word2idx, MAX_SEQ_LEN)
 
+    # TODO: fix this test
     # inp = "Podle vlády dnes není dalších otázek"
     # EXPECTED = [259, 642, 249, 66, 252, 3226]
     # vectorized = vectorizer.sent2idx(inp)
@@ -389,7 +400,7 @@ def main(config=None):
     test(test_dataset, dummy_net, loss_function)
     test(train_dataset, dummy_net, loss_function)
 
-    # train_model(train_dataset, test_dataset, word_vectors, loss_function, config["final_metric"])
+    train_model(train_dataset, test_dataset, word_vectors, loss_function, config["final_metric"])
 
 
 if __name__ == '__main__':
