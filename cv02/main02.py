@@ -171,39 +171,58 @@ class DataLoader():
         self.sts = []
         self.pointer = 0
         self._vectorizer = vectorizer
-        print(f"loading data from {self._data_folder} ...", end="")
+        print(f"loading data from {self._data_folder} ...")
         self.__load_from_file(self._data_folder)
 
         self.out_of_vocab = self._vectorizer.out_of_vocab_perc()
         self._vectorizer.reset_counter()
 
     def __load_from_file(self, file):
-        # todo CF#5
+        # CF#5
         #  load and preprocess the data set from file into self.a self.b self.sts
         #  use vectorizer to store only ids instead of strings
         with open(file, 'r', encoding="utf-8") as fd:
-            for i, l in enumerate(fd):
-                pass
-
-
-                # You can use this snippet for faster debuging
-                # if i == 4000:
-                #     break
-
+            for i, line in enumerate(fd):
+                parts = line.split("\t")
+                self.a.append(self._vectorizer.sent2idx(parts[0]))
+                self.b.append(self._vectorizer.sent2idx(parts[1]))
+                self.sts.append(float(parts[2]))
 
     def __iter__(self):
-        # todo CF#7
-        #   randomly shuffle data in memory and start from begining
+        # CF#7
+        #  randomly shuffle data in memory and start from begining
+        indices = list(range(len(self.a)))
+        random.shuffle(indices)
+
+        self.a = [self.a[i] for i in indices]
+        self.b = [self.b[i] for i in indices]
+        self.sts = [self.sts[i] for i in indices]
 
         self.pointer = 0
 
         return self
 
     def __next__(self):
-        # todo CF#6
-        #   Implement yielding a batches from preloaded data: self.a,  self.b, self.sts
+        # CF#6
+        #  Implement yielding a batches from preloaded data: self.a,  self.b, self.sts
         batch = dict()
+        batch["a"] = []
+        batch["b"] = []
+        batch["sts"] = []
 
+        for i in range(self._batch_size):
+            if self.pointer >= len(self.a):
+                return batch
+
+            batch["a"].append(self.a[self.pointer])
+            batch["b"].append(self.b[self.pointer])
+            batch["sts"].append(self.sts[self.pointer])
+
+            self.pointer += 1
+
+        batch["a"] = np.array(batch["a"])
+        batch["b"] = np.array(batch["b"])
+        batch["sts"] = np.array(batch["sts"])
 
         return batch
 
@@ -348,9 +367,9 @@ def main(config=None):
     # vectorized = vectorized[:len(EXPECTED)]
     # print(EXPECTED == vectorized)
 
-    # train_dataset = DataLoader(vectorizer, TRAIN_DATA, BATCH_SIZE)
-    # test_dataset = DataLoader(vectorizer, TEST_DATA, BATCH_SIZE)
-    #
+    train_dataset = DataLoader(vectorizer, TRAIN_DATA, BATCH_SIZE)
+    test_dataset = DataLoader(vectorizer, TEST_DATA, BATCH_SIZE)
+
     # dummy_net = DummyModel(train_dataset)
     # dummy_net = dummy_net.to(device)
     #
