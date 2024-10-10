@@ -212,6 +212,10 @@ class DataLoader():
 
         for i in range(self._batch_size):
             if self.pointer >= len(self.a):
+                batch["a"] = np.array(batch["a"])
+                batch["b"] = np.array(batch["b"])
+                batch["sts"] = np.array(batch["sts"])
+
                 return batch
 
             batch["a"].append(self.a[self.pointer])
@@ -268,11 +272,11 @@ class TwoTowerModel(torch.nn.Module):
 
 
 class DummyModel(torch.nn.Module):  # predat dataset a vracet priod
-    def __init__(self, file_path):
+    def __init__(self, data_loader):
         super(DummyModel, self).__init__()
-        # todo CF#9
-        #   Implement DummyModel as described in the assignment.
-        self.mean_on_train = None
+        # CF#9
+        #  Implement DummyModel as described in the assignment.
+        self.mean_on_train = np.mean(data_loader.sts)
 
     def forward(self, batch):
         return torch.tensor([self.mean_on_train for _ in range(len(batch['a']))]).to(device)
@@ -289,7 +293,7 @@ def test(data_set, net, loss_function):
         for i, td in enumerate(data_set):
             predicted_sts = net(td)
 
-            loss = loss_function(td['sts'].to(device), predicted_sts)
+            loss = loss_function(torch.tensor(td['sts']).to(device), predicted_sts)
             running_loss += loss.item()
             all += predicted_sts.shape[0]
 
@@ -381,14 +385,14 @@ def main(config=None):
     train_dataset = DataLoader(vectorizer, TRAIN_DATA, BATCH_SIZE)
     test_dataset = DataLoader(vectorizer, TEST_DATA, BATCH_SIZE)
 
-    # dummy_net = DummyModel(train_dataset)
-    # dummy_net = dummy_net.to(device)
-    #
-    # loss_function = torch.nn.MSELoss()
-    #
-    # test(test_dataset, dummy_net, loss_function)
-    # test(train_dataset, dummy_net, loss_function)
-    #
+    dummy_net = DummyModel(train_dataset)
+    dummy_net = dummy_net.to(device)
+
+    loss_function = torch.nn.MSELoss()
+
+    test(test_dataset, dummy_net, loss_function)
+    test(train_dataset, dummy_net, loss_function)
+
     # train_model(train_dataset, test_dataset, word_vectors, loss_function, config["final_metric"])
 
 
