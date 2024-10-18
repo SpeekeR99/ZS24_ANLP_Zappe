@@ -432,7 +432,18 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, config):
 
 
 def main(config=None):
-    wandb.init(project=wandb_config["WANDB_PROJECT"], entity=wandb_config["WANDB_ENTITY"], tags=["cv02"], config=config)
+    # Configuration string for wandb better grouping / filtering
+    config_string = f"batch_size={config['batch_size']}_lr={config['lr']}_optimizer={config['optimizer']}_random_emb={config['random_emb']}_emb_training={config['emb_training']}_emb_projection={config['emb_projection']}_final_metric={config['final_metric']}_vocab_size={config['vocab_size']}_lr_scheduler={config['lr_scheduler']}"
+    # Add some unique "something", because I have no idea how name collisions are handled in wandb
+    config_string = f"{config_string}_{run_id}"
+
+    wandb.init(
+        name=config_string,
+        project=wandb_config["WANDB_PROJECT"],
+        entity=wandb_config["WANDB_ENTITY"],
+        tags=["cv02"],
+        config=config
+    )
 
     with open(TRAIN_DATA, 'r', encoding="utf-8") as fd:
         train_data_texts = fd.read().split("\n")
