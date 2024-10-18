@@ -5,10 +5,12 @@
 #PBS -N anlp_cv02
 
 DATADIR=/storage/plzen1/home/zapped99/anlp/anlp-2024_zappe_dominik
-cd DATADIR
+cd $SCRATCHDIR
+
+cp -r $DATADIR/* .
 
 CONTAINER=/cvmfs/singularity.metacentrum.cz/NGC/PyTorch:21.03-py3.SIF
-PYTHON_SCRIPT=$DATADIR/run_cv02.py
+PYTHON_SCRIPT=run_cv02.py
 
 singularity run $CONTAINER pip install -r /storage/plzen1/home/zapped99/anlp/anlp-2024_zappe_dominik/requirements.txt --user
 singularity run $CONTAINER python -m wandb login --relogin ff0893cd7836ab91e9386aa470ed0837f2479f9b
