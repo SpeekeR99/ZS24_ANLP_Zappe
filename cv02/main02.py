@@ -395,7 +395,10 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, config):
 
             loss = loss_function(real_sts.float(), predicted_sts.float())
 
-            loss.backward()
+            # If we are not training embeddings AND projection layer is not there AND final metric is cosine similarity
+            # there is literally nothing to train -> no backward pass (prevents error)
+            if not(not config["emb_training"] and not config["emb_projection"] and config["final_metric"] == "cos"):
+                loss.backward()
             optimizer.step()
 
             running_loss += loss.item()
@@ -436,7 +439,7 @@ def main(config=None):
 
     top_n_words_better = dataset_vocab_analysis_better(train_data_texts, -1)
 
-    word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words_better, config['vocab_size'])
+    word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words_better, config['vocab_size'], force_rebuild=True)
 
     vectorizer = MySentenceVectorizer(word2idx, MAX_SEQ_LEN)
 

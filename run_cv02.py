@@ -16,15 +16,15 @@ From test.py
 """
 My grid search
 
-"batch_size": [500, 1000, 2000],
+"batch_size": [1000],
 "lr": [0.01, 0.001, 0.0001, 0.00001],
 "optimizer": ["sgd", "adam"],
-"lr_scheduler": ["stepLR", "multiStepLR", "expLR"],
+"lr_scheduler": ["multiStepLR", "expLR"],
 "random_emb": [True, False],
 "emb_training": [True, False],
 "emb_projection": [True, False],
 "final_metric": ["cos", "neural"],
-"vocab_size": [10000, 20000, 50000]
+"vocab_size": [20000, 50000]
 """
 
 if __name__ == '__main__':

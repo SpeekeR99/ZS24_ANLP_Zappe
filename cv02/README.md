@@ -299,11 +299,41 @@ Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the
 RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
 ```
 
-The combination is `random_emb = False, emb_training = False, emb_projection = False, final_metric = "cos"`.
+The combination is `emb_training = False, emb_projection = False, final_metric = "cos"`.
 
 The error even makes sense, because if we look at the architecture with this concrete setup, there is absolutely nothing to train.
 
-For this reason there is an if statement in my scripts, that run the experiments, that will skip this combination, as it is quite a useless run (and a waste of Mana on MetaCentrum :) ).
+For this reason there is an if statement in `main02.py` that will skip the backward pass if the model is of that exact combination setup.
+
+Another note from before running experiments -- I had to humble my grid search, because my original plan was:
+
+    "batch_size": [500, 1000, 2000],
+    "lr": [0.1, 0.01, 0.001, 0.0001, 0.00001],
+    "optimizer": ["sgd", "adam"],
+    "lr_scheduler": ["stepLR", "multiStepLR", "expLR"],
+    "random_emb": [True, False],
+    "emb_training": [True, False],
+    "emb_projection": [True, False],
+    "final_metric": ["cos", "neural"],
+    "vocab_size": [10000, 20000, 50000]
+
+Which would result in 4320 combinations -- that would be a lot of experiments.
+
+Final grid search looks like this:
+
+    "batch_size": [1000],
+    "lr": [0.01, 0.001, 0.0001, 0.00001],
+    "optimizer": ["sgd", "adam"],
+    "lr_scheduler": ["multiStepLR", "expLR"],
+    "random_emb": [True, False],
+    "emb_training": [True, False],
+    "emb_projection": [True, False],
+    "final_metric": ["cos", "neural"],
+    "vocab_size": [20000, 50000]
+
+Everything has options count of powers of 2, so the resulting number of combinations is 512.
+Which is OK number, since I will be running everything once with the deterministic seed of 9.
+Then I will run the best 3 performing combinations 10 times each (with the same seed, different each time of course).
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
