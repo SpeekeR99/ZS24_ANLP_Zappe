@@ -292,7 +292,18 @@ Did I use another techniques for more stable or better results?
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+One concrete combination I just found before running the experiments on MetaCentrum will always raise this error:
+
+```python
+Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
+```
+
+The combination is `random_emb = False, emb_training = False, emb_projection = False, final_metric = "cos"`.
+
+The error even makes sense, because if we look at the architecture with this concrete setup, there is absolutely nothing to train.
+
+For this reason there is an if statement in my scripts, that run the experiments, that will skip this combination, as it is quite a useless run (and a waste of Mana on MetaCentrum :) ).
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 

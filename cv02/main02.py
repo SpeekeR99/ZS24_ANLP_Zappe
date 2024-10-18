@@ -400,7 +400,7 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, config):
 
             running_loss += loss.item()
             sample += config["batch_size"]
-            # wandb.log({"train_loss": loss, "lr": lr_scheduler.get_last_lr()}, commit=False)
+            wandb.log({"train_loss": loss, "lr": lr_scheduler.get_last_lr()}, commit=False)
 
             if i % MINIBATCH_SIZE == MINIBATCH_SIZE - 1:
                 train_loss = running_loss / MINIBATCH_SIZE
@@ -413,10 +413,10 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, config):
                 test_loss_arr.append(test_loss)
                 net.train()
 
-                # wandb.log({"test_loss": test_loss}, commit=False)
+                wandb.log({"test_loss": test_loss}, commit=False)
 
                 print(f"e{epoch} b{i}\ttrain_loss:{train_loss}\ttest_loss:{test_loss}\tlr:{lr_scheduler.get_last_lr()}")
-            # wandb.log({})
+            wandb.log({})
 
         lr_scheduler.step()
 
@@ -429,7 +429,7 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, config):
 
 
 def main(config=None):
-    # wandb.init(project=wandb_config["WANDB_PROJECT"], entity=wandb_config["WANDB_ENTITY"], tags=["cv02"], config=config)
+    wandb.init(project=wandb_config["WANDB_PROJECT"], entity=wandb_config["WANDB_ENTITY"], tags=["cv02"], config=config)
 
     with open(TRAIN_DATA, 'r', encoding="utf-8") as fd:
         train_data_texts = fd.read().split("\n")
