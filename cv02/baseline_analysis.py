@@ -13,7 +13,7 @@ class RandomModel:
         self.number_of_classes = number_of_classes
 
     def forward(self, x):
-        return np.random.randint(0, self.number_of_classes)
+        return np.random.uniform(0, self.number_of_classes - 1)
 
 
 class MajorityClassModel:
@@ -34,8 +34,8 @@ def main():
     number_of_classes = len(np.unique(all_data))
     print(f"Number of classes: {number_of_classes}")
 
-    test_classes = np.round(test_classes).astype(int)
-    all_data = np.concatenate((train_classes, test_classes), axis=0)
+    test_classes_rounded = np.round(test_classes).astype(int)
+    all_data = np.concatenate((train_classes, test_classes_rounded), axis=0)
     number_of_classes = len(np.unique(all_data))
     print(f"Number of classes (post round): {number_of_classes}")
 
@@ -53,16 +53,8 @@ def main():
         random_train_outputs.append(random_model.forward(target))
         majority_class_train_outputs.append(majority_class_model.forward(target))
 
-    random_train_correct_hits = np.sum(np.array(random_train_outputs) == np.array(train_classes))
-    random_train_acc = random_train_correct_hits / len(train_classes)
-    majority_class_train_correct_hits = np.sum(np.array(majority_class_train_outputs) == np.array(train_classes))
-    majority_class_train_acc = majority_class_train_correct_hits / len(train_classes)
-
     mse_random_train_loss = mse_loss_fn(torch.tensor(random_train_outputs).float(), torch.tensor(train_classes).float())
     mse_majority_class_train_loss = mse_loss_fn(torch.tensor(majority_class_train_outputs).float(), torch.tensor(train_classes).float())
-
-    print(f"\nRandom model train accuracy: {random_train_acc}")
-    print(f"Majority class model train accuracy: {majority_class_train_acc}")
 
     print(f"MSE train loss for random model: {mse_random_train_loss}")
     print(f"MSE train loss for majority class model: {mse_majority_class_train_loss}")
@@ -73,16 +65,8 @@ def main():
         random_test_outputs.append(random_model.forward(target))
         majority_class_test_outputs.append(majority_class_model.forward(target))
 
-    random_test_correct_hits = np.sum(np.array(random_test_outputs) == np.array(test_classes))
-    random_test_acc = random_test_correct_hits / len(test_classes)
-    majority_class_test_correct_hits = np.sum(np.array(majority_class_test_outputs) == np.array(test_classes))
-    majority_class_test_acc = majority_class_test_correct_hits / len(test_classes)
-
     mse_random_test_loss = mse_loss_fn(torch.tensor(random_test_outputs).float(), torch.tensor(test_classes).float())
     mse_majority_class_test_loss = mse_loss_fn(torch.tensor(majority_class_test_outputs).float(), torch.tensor(test_classes).float())
-
-    print(f"\nRandom model test accuracy: {random_test_acc}")
-    print(f"Majority class model test accuracy: {majority_class_test_acc}")
 
     print(f"MSE test loss for random model: {mse_random_test_loss}")
     print(f"MSE test loss for majority class model: {mse_majority_class_test_loss}")

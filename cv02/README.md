@@ -81,18 +81,20 @@ What would the loss of a model returning a random value between 0 and 6 uniforml
 
 The loss very much depends on concrete loss function used.
 
-I personally rounded all the score values to integers (talking about test data), because training data were integers in the range from 0 to 6.
+In my previous versions I rounded all the score  values to integers, because I assumed that the training data were integers and the test data were weird.
 
-I tested MSE (Mean Squared Error) loss function, as can be seen in the `baseline_analysis.py`. Since talking about "exact" loss "appearance" is difficult, I also added values of the accuracy.
+Now I am wiser and I know that the problem is not classification, but regression, so I was pretty stupid doing that.
+
+I tested MSE (Mean Squared Error) loss function, as can be seen in the `baseline_analysis.py`, mainly because this loss function is actually being used in the real model later.
 
 Results are as follows (results are averaged over 5 runs):
 
 ### Random Model
 
-|       | Accuracy | MSE Loss |
-|-------|----------|----------|
-| Train | 0.142    | 8.824    |
-| Test  | 0.142    | 7.504    |
+|       | MSE Loss (mean ± std dev) |
+|-------|---------------------------|
+| Train | 7.784 ± 0.024             |
+| Test  | 6.230 ± 0.133             |
 
 ![#008000](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -100,20 +102,16 @@ What would the loss of a model returning best prior (most probable output) look 
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-The loss very much depends on concrete loss function used.
-
-I personally rounded all the score values to integers (talking about test data), because training data were integers in the range from 0 to 6.
-
-I tested MSE (Mean Squared Error) loss function, as can be seen in the `baseline_analysis.py`. Since talking about "exact" loss "appearance" is difficult, I also added values of the accuracy.
+Same text applies here, as above for the random model.
 
 Results are as follows:
 
 ### Majority class Model
 
-|       | Accuracy | MSE Loss |
-|-------|----------|----------|
-| Train | 0.275    | 10.478   |
-| Test  | 0.078    | 10.352   |
+|       | MSE Loss |
+|-------|----------|
+| Train | 10.478   |
+| Test  | 10.228   |
 
 From the two tables above we can clearly see, that the random model worked better for the test data, because the majority class in training data is 0, whereas in the test data, the majority class was 1 (see the histograms above).
 
@@ -139,6 +137,14 @@ Basically "Ahoj", "ahoj", "ahoj," "ahoj\n"... are all different words, which is 
 
 But unittest made me do it this way, so I did it.
 
+UPDATE: After discussing this with You in the class, I understand that lower casing and lemmatization / stemming could even harm our models.
+
+But I still don't like the fact that the score from the format "sentence\tsentence\tscore" (and the tabulators also) are not thrown away and are included in the vocabulary.
+
+For this reason I have created a function called `dataset_vocab_analysis_better`, that I will be using.
+
+I am still keeping the old function for tests; see `main02.py` and mentioned function for more commentary on this.
+
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 2. **Prepare Word Embeddings**.
@@ -163,6 +169,10 @@ Or is that the number of known words, so the size of the vocabulary will be bigg
 
 For example for `wanted_vocab_size = 20000` I personally put &lt;UNK&gt; and &lt;PAD&gt; on index 19998 and 19999, but I am not saying that the other solution, where &lt;PAD&gt; and &lt;UNK&gt; would be on 20000 and 20001 is wrong.
 I just don't know which is the correct one.
+
+UPDATE: For whatever reason, the function took really long time, but when I swapped one list for a dictionary, it is unbelievably faster.
+
+Big "WHAT" moment for Python.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
