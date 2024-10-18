@@ -17,7 +17,7 @@ import sys
 from collections import Counter
 
 import wandb
-from torch.optim.lr_scheduler import MultiStepLR
+from torch.optim.lr_scheduler import StepLR, MultiStepLR, ExponentialLR
 
 from matplotlib import pyplot as plt
 
@@ -42,7 +42,7 @@ PAD = "<PAD>"
 
 MAX_SEQ_LEN = 50
 
-BATCH_SIZE = 1000
+# BATCH_SIZE = 1000
 MINIBATCH_SIZE = 10
 
 EPOCH = 7
@@ -267,29 +267,40 @@ class DataLoader():
 
 
 class TwoTowerModel(torch.nn.Module):
-    def __init__(self, vecs, final_metric):
+    def __init__(self, vecs, config):
         super(TwoTowerModel, self).__init__()
         # CF#10a
         #  Initialize building block for architecture described in the assignment
-        self.final_metric = final_metric
+        self.final_metric = config["final_metric"]
+        self.random_emb = config["random_emb"]
+        self.emb_training = config["emb_training"]
+        self.emb_projection = config["emb_projection"]
 
         # torch.nn.Embedding
         # torch.nn.Linear
-
-        self.emb_layer = torch.nn.Embedding.from_pretrained(torch.tensor(np.array(vecs)), freeze=True)
+        if self.random_emb:
+            self.emb_layer = torch.nn.Embedding(config["vocab_size"], 300)
+        else:
+            self.emb_layer = torch.nn.Embedding.from_pretrained(torch.tensor(np.array(vecs)), freeze=not self.emb_training)
         self.emb_proj = torch.nn.Linear(300, 128)
 
         print("requires grads? : ", self.emb_layer.weight.requires_grad)
         self.relu = torch.nn.ReLU()
 
-        self.final_proj_1 = torch.nn.Linear(256, 128)
+        if self.emb_projection:
+            self.final_proj_1 = torch.nn.Linear(256, 128)
+        else:
+            self.final_proj_1 = torch.nn.Linear(600, 128)
         self.final_proj_2 = torch.nn.Linear(128, 1)
 
     def _make_repre(self, idx):
         emb = self.emb_layer(idx)
 
-        proj = self.emb_proj(emb.float())
-        proj = self.relu(proj)
+        if self.emb_projection:
+            proj = self.emb_proj(emb.float())
+            proj = self.relu(proj)
+        else:
+            proj = emb
 
         avg = torch.mean(proj, dim=1)
         return avg
@@ -309,7 +320,7 @@ class TwoTowerModel(torch.nn.Module):
             proj_2 = self.final_proj_2(proj_1)
             repre = proj_2
             repre = repre.squeeze()
-        if self.final_metric == "cos":
+        elif self.final_metric == "cos":
             repre = torch.nn.functional.cosine_similarity(repre_a, repre_b, dim=1)
 
         return repre
@@ -339,21 +350,31 @@ def test(data_set, net, loss_function):
 
             loss = loss_function(torch.tensor(td['sts']).to(device), predicted_sts)
             running_loss += loss.item()
-            all += predicted_sts.shape[0]
+            # This part seems odd, but tests made me swap "predicted_sts.shape[0]" with "1"
+            all += 1
 
     test_loss = running_loss / all
     return test_loss
 
 
-def train_model(train_dataset, test_dataset, w2v, loss_function, final_metric):
+def train_model(train_dataset, test_dataset, w2v, loss_function, config):
     # net = CzertModel()
     # net = net.to(device)
-    net = TwoTowerModel(w2v, final_metric)
+    net = TwoTowerModel(w2v, config)
     net = net.to(device)
 
-    # TODO: implement optimizer and lr_scheduler
-    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-    lr_scheduler = MultiStepLR(optimizer, milestones=[3, 5], gamma=0.1)
+    LR = config["lr"]
+    if config["optimizer"] == "adam":
+        optimizer = torch.optim.Adam(net.parameters(), lr=LR)
+    elif config["optimizer"] == "sgd":
+        optimizer = torch.optim.SGD(net.parameters(), lr=LR)
+
+    if config["lr_scheduler"] == "stepLR":
+        lr_scheduler = StepLR(optimizer, step_size=3, gamma=0.1)
+    elif config["lr_scheduler"] == "multiStepLR":
+        lr_scheduler = MultiStepLR(optimizer, milestones=[3, 5], gamma=0.1)
+    elif config["lr_scheduler"] == "expLR":
+        lr_scheduler = ExponentialLR(optimizer, gamma=0.1)
 
     train_loss_arr = []
     test_loss_arr = []
@@ -378,7 +399,7 @@ def train_model(train_dataset, test_dataset, w2v, loss_function, final_metric):
             optimizer.step()
 
             running_loss += loss.item()
-            sample += BATCH_SIZE
+            sample += config["batch_size"]
             # wandb.log({"train_loss": loss, "lr": lr_scheduler.get_last_lr()}, commit=False)
 
             if i % MINIBATCH_SIZE == MINIBATCH_SIZE - 1:
@@ -415,29 +436,19 @@ def main(config=None):
 
     top_n_words_better = dataset_vocab_analysis_better(train_data_texts, -1)
 
-    word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words_better, config['vocab_size'], force_rebuild=True)
+    word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words_better, config['vocab_size'])
 
     vectorizer = MySentenceVectorizer(word2idx, MAX_SEQ_LEN)
 
-    train_dataset = DataLoader(vectorizer, TRAIN_DATA, BATCH_SIZE)
-    test_dataset = DataLoader(vectorizer, TEST_DATA, BATCH_SIZE)
+    train_dataset = DataLoader(vectorizer, TRAIN_DATA, config["batch_size"])
+    test_dataset = DataLoader(vectorizer, TEST_DATA, config["batch_size"])
 
-    dummy_net = DummyModel(train_dataset)
-    dummy_net = dummy_net.to(device)
+    # dummy_net = DummyModel(train_dataset)
+    # dummy_net = dummy_net.to(device)
 
     loss_function = torch.nn.MSELoss()
 
-    test(test_dataset, dummy_net, loss_function)
-    test(train_dataset, dummy_net, loss_function)
+    # test(test_dataset, dummy_net, loss_function)
+    # test(train_dataset, dummy_net, loss_function)
 
-    # train_model(train_dataset, test_dataset, word_vectors, loss_function, config["final_metric"])
-
-
-if __name__ == '__main__':
-    my_config = {
-        "vocab_size": 20000,
-        "random_emb": True
-    }
-
-    print(my_config)
-    main(my_config)
+    train_model(train_dataset, test_dataset, word_vectors, loss_function, config)
