@@ -300,7 +300,7 @@ class TwoTowerModel(torch.nn.Module):
             proj = self.emb_proj(emb.float())
             proj = self.relu(proj)
         else:
-            proj = emb
+            proj = emb.float()
 
         avg = torch.mean(proj, dim=1)
         return avg
