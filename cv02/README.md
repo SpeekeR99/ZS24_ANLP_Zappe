@@ -263,7 +263,24 @@ Add more tuning and HP e.g. LR decay, tune neural-metric head, vocab_size, discu
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-TODO - až budou hotové všechny experimenty
+![Parallel Coordinate Chart](./img/parallel_coordinate_chart_all.svg?raw=true "Parallel Coordinate Chart")
+(Please note that batch size is not in the chart, because my runs with batch size 1000 did not log batch size for some reason? Everything appears to be 500 batch size)
+
+![Parallel Coordinate Chart](./img/parallel_coordinate_chart_best.svg?raw=true "Parallel Coordinate Chart")
+(Parallel coordinate chart of the runs, that have test loss <= 2; those runs are the 5 chosen for the reproduction of 10 times)
+
+Those best 5 runs have the following HPs in common:
+- `batch_size = 500`
+- `optimizer = "adam"`
+- `lr_scheduler = "multiStepLR"`
+- `lr = 0.01`
+- `final_metric = "neural"`
+- `emb_projection = True`
+
+So the only difference between those 5 runs is in the `random_emb`, `emb_training` and `vocab_size`.
+
+![Parallel Coordinate Chart](./img/parallel_coordinate_chart_best_10.svg?raw=true "Parallel Coordinate Chart")
+(Parallel coordinate chart of the runs, that have test loss <= 2; after 10 runs repetitions)
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -276,7 +293,7 @@ TODO - až budou hotové všechny experimenty
 
 I tuned the following HPs:
 1. `batch_size`:
-    -  Tested values: 500, 1000
+    -  Tested values: 500, 1 000
 2. `lr`:
     -  Tested values: 0.1, 0.01, 0.001, 0.0001, 0.00001
 3. `optimizer`:
@@ -294,7 +311,42 @@ I tuned the following HPs:
 9. `vocab_size`:
     -  Tested values: 20 000, 50 000
 
-TODO - až budou hotové všechny experimenty
+Side note, I named my runs with the convention of having all the parameters in the name, so I can now easily group runs by name and have the confidence interval nicely shown:
+
+![Group by name](./img/test_loss_groupby_name_best_10.svg?raw=true "Group by name")
+
+Raw data from wandb using group by name:
+
+```
+(config: mean ± std dev (number of runs))
+not rand emb, not emb train, vocab 20k: 1.941 ± 0.055 (5 runs)
+not rand emb, not emb train, vocab 50k: 1.947 ± 0.042 (5 runs)
+not rand emb, emb train, vocab 20k: 1.882 ± 0.054 (4 runs)
+not rand emb, emb train, vocab 50k: 1.862 ± 0.083 (6 runs)
+rand emb, emb train, vocab 20k: 1.912 ± 0.061 (5 runs)
+```
+(note, number of runs is not 10, why? Because I filtered out the runs, that had test loss > 2)
+
+(used confidence for confidence interval calculation is 95 %)
+
+| MODEL CONFIG                                 | TEST LOSS ± CONFIDENCE INTERVAL |
+|----------------------------------------------|---------------------------------|
+| *Dummy model*                                | *3.230 ± 0.000*                 |
+| *Random model*                               | *6.230 ± 0.117*                 |
+| *Majority class model*                       | *10.228 ± 0.000*                |
+| NOT(rand_emb)NOT(emb_train)(vocab_size=20k)  | 1.941 ± 0.048                   |
+| NOT(rand_emb)NOT(emb_train)(vocab_size=50k)  | 1.947 ± 0.037                   |
+| **NOT(rand_emb)(emb_train)(vocab_size=20k)** | **1.882 ± 0.053**               |
+| **NOT(rand_emb)(emb_train)(vocab_size=50k)** | **1.862 ± 0.066**               |
+| (rand_emb)(emb_train)(vocab_size=20k)        | 1.912 ± 0.054                   |
+(Note: All models also have `batch_size = 500`, `optimizer = "adam"`, `lr_scheduler = "multiStepLR"`, `lr = 0.01`, `final_metric = "neural"`, `emb_projection = True`)
+
+From that table we can clearly see, that the best models are the ones that have smaller batch size of 500, optimizer adam with learning rate of 0.01,
+learning rate scheduler (LR Decay) of multiStepLR, final metric neural head and projection layer of embeddings.
+
+The only differences are in whether the embeddings are randomly initialized or not, whether the embeddings are trainable or not and the size of the vocabulary.
+
+The overall best model is the one with the pretrained embeddings (not random) and trainable embeddings. The vocabulary size does not seem to do much, but the overall best is the one with the bigger vocabulary of 50 000.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -310,7 +362,7 @@ Did I use another techniques for more stable or better results?
 
 One concrete combination I just found before running the experiments on MetaCentrum will always raise this error:
 
-```python
+```
 Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
 RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
 ```
@@ -340,32 +392,63 @@ The grid search was being adjusted as it went, because I was trying to hit the <
 
 So I added `learning rate = 0.1`, which did not help at all.
 
-So then I tried adding `batch size = 500`, TODO.
+So then I tried adding `batch size = 500`, which helped a lot and I reached the milestone of test loss being the value of 2.
 Here it seems weird to me that there was predefined constant of `BATCH_SIZE = 1000` in the original code -- it seems like unnecessarily big number to me.
 Sadly I realised I could change that way too late -- after about 2000 completed runs.
+I blindly followed the original code, without thinking about changing batch size.
 (For students to come after us, I would probably change this constant, or explicitly mention that the batch size is to be tuned too.)
 
 Let's do a closer analysis for each of the HPs:
 
 1. `batch_size`:
-    -  TODO
+    - Sadly, this parameter was very crucial to get overall better results, no model with the original constant of 1000 had test loss <= 2.
+    - My experiments only proved that the batch size of 1000 were way too big, and 500 performed better.
+    - I would probably try to tune this parameter even more, because I think that the batch size of 500 is still too big; but I need to save some MetaCentrum Mana for later :) .
+    - (I can't show a groupby chart here, because batch size 500 was so much better, that it's the only curve in the chart on the given scope by wandb)
+    - But I really believe that this parameter is the most crucial to test more, because the initial constant of 1000 was overshot by a ton.
 2. `lr`:
-    -  TODO
+    - Overall best learning rate turned out to be 0.01 in the combination with the optimizer Adam.
+    - ![Group by learning rate](./img/test_loss_groupby_lr.svg?raw=true "Group by learning rate")
+    - (Note that the learning rate of 0.1 is not in the chart, because it was so bad, that it was not even in the scope of the chart)
 3. `optimizer`:
-    -  TODO
+    - Adam performed the best with the learning rate of 0.01.
+    - (Once again groupby chart would not show much here, because Adam just outperformed sgd so much, that it is out of scope)
 4. `lr_scheduler`:
-    -  TODO
+    - I personally did not have any assumptions about this parameter, because I did not know much about LR decay up until now.
+    - ![Group by learning rate scheduler](./img/test_loss_groupby_lr_scheduler.svg?raw=true "Group by learning rate scheduler")
+    - As we can clearly see, multiStepLR performed better than exponentialLR for this task.
 5. `random_emb`:
-    -  TODO
+    - Here I personally thought, that the randomly initialized embedding would not be as good as the pretrained ones.
+    - ![Group by random embedding](./img/test_loss_groupby_random_emb.svg?raw=true "Group by random embedding")
+    - As we can see from the chart, the pretrained embeddings performed better than the randomly initialized ones, as expected by me.
+    - (Note, be careful with trusting these charts, because as they say "Computing group metrics from first 50 groups", there is about 1300-1400 runs, but the chart is made from only 50 of those)
 6. `emb_training`:
-    -  TODO
+    - With this parameter, I personally expected the model to perform better with trained/trainable embeddings.
+    - ![Group by embedding training](./img/test_loss_groupby_emb_training.svg?raw=true "Group by embedding training")
+    - The chart above again supports my assumption.
 7. `emb_projection`:
-    -  TODO
+    - I expected the model to be better with the projection layer, it just made sense this way.
+    - ![Group by embedding projection](./img/test_loss_groupby_emb_projection.svg?raw=true "Group by embedding projection")
+    - As we can see from the chart, my assumption was correct.
+    - Not only from the chart, but also from the table above, all the best models had this parameter be True.
 8. `final_metric`:
-    -  TODO
+    - Here I believed that cosine similarity would be really good, but I expected that the neural metric head would "learn" some hidden patterns between the vectors, something possibly better than just "angle" (?! if possible).
+    - ![Group by final metric](./img/test_loss_groupby_final_metric.svg?raw=true "Group by final metric")
+    - Here I somehow don't believe the chart above. I believe that the neural head should outperform cosine similarity, but the curve of cosine similarity is just constant.
+    - I believe the last 50 runs might have been my mentioned combination which doesn't have anything to learn, so it just outputs "constant" loss (a bit different for each batch of course, but still, constant) -- so the chart might be lying to us here.
 9. `vocab_size`:
-    -  TODO
+    - Here I thought that bigger vocabulary would be better, as the model "knows" more.
+    - ![Group by vocab size](./img/test_loss_groupby_vocab_size.svg?raw=true "Group by vocab size")
+    - Here my assumption was not really that correct, or we would need deeper analysis, bigger grid search with more options for this parameter.
+    - But this parameter seems to have little to no effect on the test loss.
 
+![Parameter importance](./img/test_loss_parameter_importance.png?raw=true "Parameter importance")
+
+Based on wandb "Parameter importance", learning rate was yet again the most important parameter.
+
+In my opinion batch size was the second, but wandb doesn't think so, probably because I only tried values of 1000 and 500, and I think if we showed the wandb how lower numbers would perform, it would agree with my opinion on that.
+
+Final metric seems to be also an important choice, as all the good models had the neural metric head.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
