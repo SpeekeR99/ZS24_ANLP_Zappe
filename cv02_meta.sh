@@ -15,4 +15,4 @@ PYTHON_SCRIPT=run_cv02.py
 singularity run $CONTAINER pip install -r /storage/plzen1/home/zapped99/anlp/anlp-2024_zappe_dominik/requirements.txt --user
 singularity run $CONTAINER python -m wandb login --relogin ff0893cd7836ab91e9386aa470ed0837f2479f9b
 
-singularity run $CONTAINER python $PYTHON_SCRIPT -lr $lr -optimizer $opt -random_emb $re -emb_training $et -emb_projection $ep -final_metric $fm -vocab_size $vs -lr_scheduler $lr_s
+singularity run $CONTAINER python $PYTHON_SCRIPT -batch_size $bs -lr $lr -optimizer $opt -random_emb $re -emb_training $et -emb_projection $ep -final_metric $fm -vocab_size $vs -lr_scheduler $lr_s

@@ -170,10 +170,6 @@ Or is that the number of known words, so the size of the vocabulary will be bigg
 For example for `wanted_vocab_size = 20000` I personally put &lt;UNK&gt; and &lt;PAD&gt; on index 19998 and 19999, but I am not saying that the other solution, where &lt;PAD&gt; and &lt;UNK&gt; would be on 20000 and 20001 is wrong.
 I just don't know which is the correct one.
 
-UPDATE: For whatever reason, the function took really long time, but when I swapped one list for a dictionary, it is unbelievably faster.
-
-Big "WHAT" moment for Python.
-
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 3. **Implement SentenceVectorizer** This module takes text as an input
@@ -267,7 +263,7 @@ Add more tuning and HP e.g. LR decay, tune neural-metric head, vocab_size, discu
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+TODO - až budou hotové všechny experimenty
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -278,7 +274,27 @@ _MISSING_
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+I tuned the following HPs:
+1. `batch_size`:
+    -  Tested values: 500, 1000
+2. `lr`:
+    -  Tested values: 0.1, 0.01, 0.001, 0.0001, 0.00001
+3. `optimizer`:
+    -  Tested values: "sgd", "adam"
+4. `lr_scheduler`:
+    -  Tested values: "multiStepLR", "expLR"
+5. `random_emb`:
+    -  Tested values: True, False
+6. `emb_training`:
+    -  Tested values: True, False
+7. `emb_projection`:
+    -  Tested values: True, False
+8. `final_metric`:
+    -  Tested values: "cos", "neural"
+9. `vocab_size`:
+    -  Tested values: 20 000, 50 000
+
+TODO - až budou hotové všechny experimenty
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -305,24 +321,10 @@ The error even makes sense, because if we look at the architecture with this con
 
 For this reason there is an if statement in `main02.py` that will skip the backward pass if the model is of that exact combination setup.
 
-Another note from before running experiments -- I had to humble my grid search, because my original plan was:
-
-    "batch_size": [500, 1000, 2000],
-    "lr": [0.1, 0.01, 0.001, 0.0001, 0.00001],
-    "optimizer": ["sgd", "adam"],
-    "lr_scheduler": ["stepLR", "multiStepLR", "expLR"],
-    "random_emb": [True, False],
-    "emb_training": [True, False],
-    "emb_projection": [True, False],
-    "final_metric": ["cos", "neural"],
-    "vocab_size": [10000, 20000, 50000]
-
-Which would result in 4320 combinations -- that would be a lot of experiments.
-
 Final grid search looks like this:
 
-    "batch_size": [1000],
-    "lr": [0.01, 0.001, 0.0001, 0.00001],
+    "batch_size": [500, 1000],
+    "lr": [0.1, 0.01, 0.001, 0.0001, 0.00001],
     "optimizer": ["sgd", "adam"],
     "lr_scheduler": ["multiStepLR", "expLR"],
     "random_emb": [True, False],
@@ -331,9 +333,39 @@ Final grid search looks like this:
     "final_metric": ["cos", "neural"],
     "vocab_size": [20000, 50000]
 
-Everything has options count of powers of 2, so the resulting number of combinations is 512.
-Which is OK number, since I will be running everything once with the deterministic seed of 9.
-Then I will run the best 3 performing combinations 10 times each (with the same seed, different each time of course).
+That is 1280 combinations, which is a lot, because I had to run everything at least a few times.
+
+The grid search was being adjusted as it went, because I was trying to hit the <= 2 test loss, but I couldn't find the right combination.
+(My first "prototype" of grid search was 512 combinations).
+
+So I added `learning rate = 0.1`, which did not help at all.
+
+So then I tried adding `batch size = 500`, TODO.
+Here it seems weird to me that there was predefined constant of `BATCH_SIZE = 1000` in the original code -- it seems like unnecessarily big number to me.
+Sadly I realised I could change that way too late -- after about 2000 completed runs.
+(For students to come after us, I would probably change this constant, or explicitly mention that the batch size is to be tuned too.)
+
+Let's do a closer analysis for each of the HPs:
+
+1. `batch_size`:
+    -  TODO
+2. `lr`:
+    -  TODO
+3. `optimizer`:
+    -  TODO
+4. `lr_scheduler`:
+    -  TODO
+5. `random_emb`:
+    -  TODO
+6. `emb_training`:
+    -  TODO
+7. `emb_projection`:
+    -  TODO
+8. `final_metric`:
+    -  TODO
+9. `vocab_size`:
+    -  TODO
+
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
