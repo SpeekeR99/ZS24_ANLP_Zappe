@@ -339,6 +339,7 @@ rand emb, emb train, vocab 20k: 1.912 ± 0.061 (5 runs)
 | **NOT(rand_emb)(emb_train)(vocab_size=20k)** | **1.882 ± 0.053**               |
 | **NOT(rand_emb)(emb_train)(vocab_size=50k)** | **1.862 ± 0.066**               |
 | (rand_emb)(emb_train)(vocab_size=20k)        | 1.912 ± 0.054                   |
+
 (Note: All models also have `batch_size = 500`, `optimizer = "adam"`, `lr_scheduler = "multiStepLR"`, `lr = 0.01`, `final_metric = "neural"`, `emb_projection = True`)
 
 From that table we can clearly see, that the best models are the ones that have smaller batch size of 500, optimizer adam with learning rate of 0.01,
