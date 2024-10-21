@@ -146,11 +146,10 @@ __MISSING__
 ### Discussion
 _MISSING_
 
-Jaké parametry jsem tunil?
+Which hyperparameters did I tune?
+Which had the greatest influence?
+Have I used other techniques to stabilize the training, and did I get better results?
 
-Které měly největší vliv?
-
-Jaké další techniky pro stabilnější nebo lepší výsledky jsem použil?
 
 
 # To Think About:
@@ -213,11 +212,6 @@ Jaké další techniky pro stabilnější nebo lepší výsledky jsem použil?
 
 
 
-
-
-## Poznámky z minulých cvičení:
-
-pro letošek necháme na metacentru stačí wandb_config.py zkopírovat přímo do složky a ne do rootu a běhá to.  
 
 
 
