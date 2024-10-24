@@ -4,7 +4,7 @@ import configparser
 import os
 import pickle
 import sys
-from collections import defaultdict, Counter
+from collections import defaultdict
 
 import random
 import numpy as np
@@ -34,18 +34,6 @@ WORD2IDX = "word2idx.pckl"
 VECS_BUFF = "vecs.pckl"
 
 from wandb_config import WANDB_PROJECT, WANDB_ENTITY
-
-
-def dataset_vocab_analysis_better(texts, top_n=-1):
-    counter = Counter()
-    for text in texts:
-        words = text.split("\t")[0].split(" ")
-        counter.update(words)
-
-    if top_n < 0:
-        top_n = len(counter)
-
-    return [word for word, _ in counter.most_common(top_n)]
 
 
 def load_ebs(emb_file, top_n_words: list, wanted_vocab_size, force_rebuild=False):
@@ -180,6 +168,20 @@ def test_on_dataset(dataset_iterator, vectorizer, model, loss_metric_func):
         texts = b["text"]
         labels = b["label"]
 
+        vectorized = []
+        for text in texts:
+            vectorized.append(vectorizer.sent2idx(text))
+
+        predicted_labels = model(vectorized)
+        test_enum_y.append(labels)
+        test_enum_pred.append(predicted_labels)
+
+        loss = loss_metric_func(predicted_labels, labels)
+        test_loss_list.append(loss.item())
+
+        correct = (predicted_labels.argmax(dim=1) == labels).float()
+        test_acc_list.append(correct.mean().item())
+
     return {
         "test_acc": sum(test_acc_list) / len(test_acc_list),
         "test_loss": sum(test_loss_list) / len(test_loss_list),
@@ -188,16 +190,74 @@ def test_on_dataset(dataset_iterator, vectorizer, model, loss_metric_func):
     }
 
 
+def train_model(cls_train_iterator, cls_val_iterator, vectorizer, w2v, config):
+    if config["model"] == CNN_MODEL:
+        model = MyModelConv(config, w2v=w2v)
+    elif config["model"] == MEAN_MODEL:
+        model = MyModelAveraging(config, w2v=w2v)
+
+    num_of_params = 0
+    for x in model.parameters():
+        print(x.shape)
+        num_of_params += torch.prod(torch.tensor(x.shape), 0)
+    config["num_of_params"] = num_of_params
+    print("num of params:", num_of_params)
+
+    # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03"], config=config)
+    # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03","best"], config=config)
+
+    model.to(config["device"])
+    cross_entropy = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
+
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 0)
+
+    batch = 0
+    while True:
+        for b in cls_train_iterator:
+            texts = b["text"]
+            labels = b["label"]
+
+            vectorized = []
+            for text in texts:
+                vectorized.append(vectorizer.sent2idx(text))
+
+            optimizer.zero_grad()
+
+            predicted_labels = model(vectorized)
+
+            loss = cross_entropy(predicted_labels, labels)
+            loss.backward()
+
+            optimizer.step()
+
+            if batch % 100 == 0:
+                model.eval()
+
+                ret = test_on_dataset(cls_val_iterator, vectorizer, model, cross_entropy)
+                # wandb.log({"val_acc": ret["test_acc"], "val_loss": ret["test_loss"]}, commit=False)
+                conf_matrix = wandb.plot.confusion_matrix(preds=ret["test_pred_clss"], y_true=ret["test_enum_gold"], class_names=CLS_NAMES)
+                # wandb.log({"conf_mat":conf_matrix})
+
+                model.train()
+
+            # wandb.log({"train_loss": loss, "train_acc": train_acc, "lr": lr_scheduler.get_last_lr()[0], "pred": pred, "norm": total_norm})
+            batch += 1
+
+        lr_scheduler.step()
+
+        if batch > config["batches"]:
+            break
+
+    return model, cross_entropy
+
+
 def main(config : dict):
     cls_dataset = load_dataset("csv", delimiter='\t', data_files={"train": [CSFD_DATASET_TRAIN], "test": [CSFD_DATASET_TEST]})
 
-    cls_train_iterator = DataLoader(cls_dataset['train'], batch_size=config['batch_size'])
-    cls_test_iterator = DataLoader(cls_dataset['test'], batch_size=config['batch_size'])
+    top_n_words = dataset_vocab_analysis(cls_dataset['train']['text'], top_n=-1)
 
-    # top_n_words = dataset_vocab_analysis(cls_dataset['train']['text'], top_n=-1)
-    top_n_words = dataset_vocab_analysis_better(cls_dataset['train']['text'], top_n=-1)
-
-    word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words, config['vocab_size'], force_rebuild=True)
+    word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words, config['vocab_size'], force_rebuild=False)
 
     vectorizer = MySentenceVectorizer(word2idx, config["seq_len"])
 
@@ -205,48 +265,15 @@ def main(config : dict):
     coverage, cls_dist = count_statistics(cls_dataset['train'], vectorizer)
     print(f"COVERAGE: {coverage}\ncls_dist:{cls_dist}")
 
-    # if not config["emb_training"]:
-    #     word_vectors = None
-    #
-    # if config["model"] == CNN_MODEL:
-    #     model = MyModelConv(config,w2v=word_vectors)
-    # elif config["model"] == MEAN_MODEL:
-    #     model = MyModelAveraging(config,w2v=word_vectors)
-    #
-    # num_of_params = 0
-    # for x in model.parameters():
-    #     print(x.shape)
-    #     num_of_params += torch.prod(torch.tensor(x.shape), 0)
-    # config["num_of_params"] = num_of_params
-    # print("num of params:", num_of_params)
-    #
-    # # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03"], config=config)
-    # # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03","best"], config=config)
-    #
-    # model.to(config["device"])
-    # cross_entropy = nn.CrossEntropyLoss()
-    # optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
-    #
-    # lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 0)
-    #
-    # batch = 0
-    # while True:
-    #     for b in cls_train_iterator:
-    #         texts = b["text"]
-    #         labels = b["label"]
-    #
-    #         if batch % 100 == 0:
-    #             ret = test_on_dataset(cls_test_iterator, vectorizer, model, cross_entropy)
-    #             conf_matrix = None # wandb.plot.confusion_matrix(...)
-    #             # wandb.log({"conf_mat":conf_matrix})
-    #
-    #             # wandb.log({"test_acc": ret["test_acc"],
-    #             #            "test_loss": ret["test_loss"]}, commit=False)
-    #
-    #         # wandb.log(
-    #         #     {"train_loss": loss, "train_acc": train_acc, "lr": lr_scheduler.get_last_lr()[0], "pred": pred,
-    #         #      "norm": total_norm})
-    #         batch += 1
+    # Split train into train and validation
+    split_dataset = cls_dataset['train'].train_test_split(test_size=0.2)
+    cls_train_iterator = DataLoader(split_dataset['train'], batch_size=config['batch_size'])
+    cls_val_iterator = DataLoader(split_dataset['test'], batch_size=config['batch_size'])
+    cls_test_iterator = DataLoader(cls_dataset['test'], batch_size=config['batch_size'])
+
+    model, used_loss = train_model(cls_train_iterator, cls_val_iterator, vectorizer, word_vectors, config)
+    ret_dict = test_on_dataset(cls_test_iterator, vectorizer, model, used_loss)
+    # wandb.log({"test_acc": ret_dict["test_acc"], "test_loss": ret_dict["test_loss"]})
 
 
 if __name__ == '__main__':
