@@ -159,31 +159,66 @@ class MyModelAveraging(MyBaseModel):
 class MyModelConv(MyBaseModel):
     def __init__(self, config, w2v=None):
         super(MyModelConv, self).__init__(config, w2v),
-        self.config = config
 
-        # todo CF#CNN_CONF
+        # CF#CNN_CONF
+        # TODO: what is "hidden_size" ?!
         self.cnn_architecture = config["cnn_architecture"]  # for unit tests
         if self.cnn_architecture == "A":
-            self.cnn_config = [(1, config["n_kernel"], (2, 1)), (1, config["n_kernel"], (3, 1)),
-                               (1, config["n_kernel"], (4, 1))]
             self.config["hidden_size"] = 500
+            self.cnn_config = [(1, config["n_kernel"], (2, 1)),
+                               (1, config["n_kernel"], (3, 1)),
+                               (1, config["n_kernel"], (4, 1))]
         elif self.cnn_architecture == "B":
             self.config["hidden_size"] = 514
-            self.cnn_config = [(1, config["n_kernel"], (2, 2)), (1, config["n_kernel"], (3, 3)),
-                               (1, config["n_kernel"], (4, 4))]
+            self.cnn_config = [(1, config["n_kernel"], (2, 2)),
+                               (1, config["n_kernel"], (3, 2)),
+                               (1, config["n_kernel"], (4, 2))]
         elif self.cnn_architecture == "C":
             self.config["hidden_size"] = 35000
             self.cnn_config = [(1, config["n_kernel"], (2, config["proj_size"])),
                                (1, config["n_kernel"], (3, config["proj_size"])),
                                (1, config["n_kernel"], (4, config["proj_size"]))]
 
+        self.conv_layers = []
+        for i, (in_channels, out_channels, kernel_size) in enumerate(self.cnn_config):
+            self.conv_layers.append(nn.Conv2d(in_channels, out_channels, kernel_size))
 
-        # !!!!!! TODO
-        # this line is important if you use list to group your architecture ... optimizer would not register if it is not used
+        self.max_pools = []
+        for i, (in_channels, out_channels, kernel_size) in enumerate(self.cnn_config):
+            self.max_pools.append(nn.MaxPool2d((config["seq_len"] - kernel_size[0] + 1, 1)))
+
+        self.dropout = nn.Dropout(.5)
+        # Explanation of factor (config["proj_size"] - self.cnn_config[0][2][1] + 1):
+        #   With one extreme self.cnn_config[0][2][1] = 1, so the whole multiplication is * config["proj_size"]
+        #   The other extreme is self.cnn_config[0][2][1] = config["proj_size"], so the whole multiplication is * 1
+        self.head = nn.Linear(len(self.cnn_config) * config["n_kernel"] * (config["proj_size"] - self.cnn_config[0][2][1] + 1), NUM_CLS)
+
         self.modules = nn.ModuleList(self.conv_layers)
 
-    def forward(self, x, l):
-        return None
+    def forward(self, x):
+        x = torch.tensor(x).to(self.config["device"])
+        emb = self.emb_layer(x).float()
+
+        if self.emb_projection:
+            proj = self.emb_proj(emb)
+            proj = self.activation(proj)
+        else:
+            proj = emb
+
+        proj = proj.unsqueeze(1)
+
+        conv_outs = []
+        for i, conv in enumerate(self.conv_layers):
+            conv_out = conv(proj)
+            conv_out = self.activation(conv_out)
+            conv_out = self.max_pools[i](conv_out)
+            conv_out = self.dropout(conv_out)
+            conv_outs.append(conv_out)
+
+        conv_outs = torch.cat(conv_outs, dim=1)
+        conv_outs = conv_outs.view(conv_outs.size(0), -1)
+        final = self.head(conv_outs)
+        return self.softmax(final)
 
 
 def test_on_dataset(dataset_iterator, vectorizer, model, loss_metric_func):

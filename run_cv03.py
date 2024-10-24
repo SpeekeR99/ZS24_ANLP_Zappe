@@ -21,7 +21,7 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
 
     config = {
-        "model": MEAN_MODEL,
+        "model": CNN_MODEL,
         "batch_size": 33,
         "lr": 0.0001,
 
@@ -33,13 +33,14 @@ if __name__ == '__main__':
 
         "seq_len": 100,
         "vocab_size": 20000,
-        "emb_training": True,
+        "emb_training": False,
         "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         "n_kernel": 64,
         "proj_size": 100,
         "activation": "relu",
-        "random_emb": True,
-        "emb_projection": False,
+        "random_emb": False,
+        "emb_projection": True,
+        "cnn_architecture": "B",
     }
 
     config.update(args)
