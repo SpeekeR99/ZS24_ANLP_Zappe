@@ -37,6 +37,9 @@ if __name__ == '__main__':
         "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         "n_kernel": 64,
         "proj_size": 100,
+        "activation": "relu",
+        "random_emb": True,
+        "emb_projection": False,
     }
 
     config.update(args)
