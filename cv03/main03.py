@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader
 
 import wandb_config
 from cv02.consts import EMB_FILE
-from cv02.main02 import dataset_vocab_analysis, load_ebs, MySentenceVectorizer, PAD, UNK
+from cv02.main02 import dataset_vocab_analysis, MySentenceVectorizer, PAD, UNK
 
 NUM_CLS = 3
 
@@ -29,6 +29,9 @@ CSFD_DATASET_TRAIN = "cv03/data/csfd-train.tsv"
 CSFD_DATASET_TEST = "cv03/data/csfd-test.tsv"
 
 CLS_NAMES = ["neg", "neu", "pos"]
+
+WORD2IDX = "word2idx.pckl"
+VECS_BUFF = "vecs.pckl"
 
 from wandb_config import WANDB_PROJECT, WANDB_ENTITY
 
@@ -45,12 +48,68 @@ def dataset_vocab_analysis_better(texts, top_n=-1):
     return [word for word, _ in counter.most_common(top_n)]
 
 
+def load_ebs(emb_file, top_n_words: list, wanted_vocab_size, force_rebuild=False):
+    print("prepairing W2V...", end="")
+    if os.path.exists(WORD2IDX) and os.path.exists(VECS_BUFF) and not force_rebuild:
+        # CF#3
+        print("...loading from buffer")
+        with open(WORD2IDX, 'rb') as idx_fd, open(VECS_BUFF, 'rb') as vecs_fd:
+            word2idx = pickle.load(idx_fd)
+            vecs = pickle.load(vecs_fd)
+    else:
+        print("...creating from scratch")
+
+        if wanted_vocab_size < 0:
+            wanted_vocab_size = len(top_n_words)
+
+        wanted_vocab_size_without_utils_tokens = wanted_vocab_size - 2  # -2 for UNK and PAD
+
+        top_n_words = top_n_words[:wanted_vocab_size_without_utils_tokens]
+
+        with open(emb_file, 'r', encoding="utf-8") as emb_fd:
+            idx = 0
+            word2idx = {}
+            vecs = [np.random.uniform(-1, 1, 300) for _ in range(wanted_vocab_size)]
+
+            # CF#2
+            #  create map of  word->id  of top according to the given top_n_words
+            #  create a matrix as a np.array : word vectors
+            #  vocabulary ids corresponds to vectors in the matrix
+            #  Do not forget to add UNK and PAD tokens into the vocabulary.
+
+            for word in top_n_words:  # Interesting note here, this is basically only used for the later if (*)
+                word2idx[word] = idx
+                idx += 1
+
+            for i, line in enumerate(emb_fd):
+                if i == 0:
+                    continue
+
+                parts = line.split(" ")
+                word = parts[0]
+
+                if word in word2idx:  # (*) this is a LOT faster for some reason, than "word in top_n_words"
+                    vecs[word2idx[word]] = np.array([float(x) for x in parts[1:]])
+
+            word2idx[UNK] = idx
+            word2idx[PAD] = idx + 1
+            vecs[idx + 1] = np.zeros(300)
+
+            # assert len(word2idx) > 6820
+            # assert len(vecs) == len(word2idx)
+            pickle.dump(word2idx, open(WORD2IDX, 'wb'))
+            pickle.dump(vecs, open(VECS_BUFF, 'wb'))
+
+    return word2idx, vecs
+
+
 def count_statistics(dataset, vectorizer) -> tuple[float, dict]:
     # CF#01
     for line in dataset["text"]:
         vectorizer.sent2idx(line)
 
-    coverage = vectorizer.out_of_vocab_perc() / 100
+    coverage = 1 - (vectorizer.out_of_vocab_perc() / 100)
+
     class_distribution = defaultdict(int)
     labels = np.array(dataset["label"])
     uniq, counts = np.unique(labels, return_counts=True)
@@ -130,19 +189,19 @@ def test_on_dataset(dataset_iterator, vectorizer, model, loss_metric_func):
 
 
 def main(config : dict):
-    cls_dataset = load_dataset("csv", delimiter='\t', data_files={"train": [CSFD_DATASET_TRAIN],
-                                                                  "test": [CSFD_DATASET_TEST]})
+    cls_dataset = load_dataset("csv", delimiter='\t', data_files={"train": [CSFD_DATASET_TRAIN], "test": [CSFD_DATASET_TEST]})
 
     cls_train_iterator = DataLoader(cls_dataset['train'], batch_size=config['batch_size'])
     cls_test_iterator = DataLoader(cls_dataset['test'], batch_size=config['batch_size'])
 
     # top_n_words = dataset_vocab_analysis(cls_dataset['train']['text'], top_n=-1)
-    top_n_words_better = dataset_vocab_analysis_better(cls_dataset['train']['text'], top_n=-1)
+    top_n_words = dataset_vocab_analysis_better(cls_dataset['train']['text'], top_n=-1)
 
-    word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words_better, config['vocab_size'], force_rebuild=False)
+    word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words, config['vocab_size'], force_rebuild=True)
 
     vectorizer = MySentenceVectorizer(word2idx, config["seq_len"])
 
+    # TODO: my coverage: 0.7969 vs. test: (0.68, 0.78) ; My coverage is too good?
     coverage, cls_dist = count_statistics(cls_dataset['train'], vectorizer)
     print(f"COVERAGE: {coverage}\ncls_dist:{cls_dist}")
 

@@ -75,6 +75,17 @@ Use the *list of top N word*s for pruning the given Word embeddings.
 **Force vocab size (N most frequent words from the train dataset)
 Words without embedding in the given emb file initialize randomly**
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+Unit tests in `cv02` literally wanted us to not force vocab size and to prune / not add, if the word is unknown.
+
+Tests now want us to force vocab size and initialize randomly -- for this reason I have changed your tests imports and re-implemented the function `load_ebs`, because I want my tests from `cv02` to pass.
+
+All I have changed in the `test.py` is `from cv02.main02 import load_ebs` -&gt; `from cv03.main03 import load_ebs`.
+
+Please  don't kill me for changing `test.py`; I have not changed anything else.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 The cache will be stored on the hard drive for future use.
 You should see two new files *word2idx.pckl* and *vecs.pckl*

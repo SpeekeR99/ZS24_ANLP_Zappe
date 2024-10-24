@@ -12,9 +12,9 @@ from scipy.stats import sem
 import cv02.main02
 from cv02.consts import TRAIN_DATA, EMB_FILE, TEST_DATA
 
-from cv02.main02 import dataset_vocab_analysis, load_ebs, MySentenceVectorizer, DataLoader, DummyModel, test, WORD2IDX, \
+from cv02.main02 import dataset_vocab_analysis, MySentenceVectorizer, DataLoader, DummyModel, test, WORD2IDX, \
     VECS_BUFF
-from cv03.main03 import CSFD_DATASET_TRAIN, CSFD_DATASET_TEST, count_statistics, MyModelConv
+from cv03.main03 import CSFD_DATASET_TRAIN, CSFD_DATASET_TEST, count_statistics, MyModelConv, load_ebs
 from my_utils import wandb_utils
 from enum import Enum
 
