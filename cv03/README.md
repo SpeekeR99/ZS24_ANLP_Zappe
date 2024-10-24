@@ -53,6 +53,16 @@ top\_n words
 Do not count pad tokens
 - Count statistics about class distribution in dataset (train/test)
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+![Histogram](img/training_labels_hist.svg?raw=True "Histogram")
+
+![Histogram](img/testing_labels_hist.svg?raw=True "Histogram")
+
+The dataset looks balanced.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
 2. **Prepare Word Embeddings**.
     https://drive.google.com/file/d/1MTDoyoGRhvLf15yL4NeEbpYLbcBlDZ3c/view?usp=sharing
 
@@ -69,9 +79,7 @@ Words without embedding in the given emb file initialize randomly**
 The cache will be stored on the hard drive for future use.
 You should see two new files *word2idx.pckl* and *vecs.pckl*
 
-
 3. **Prepare Dataset for Training**
-
  
 Use load_dataset from datasets to load csv dataset.
 
@@ -79,12 +87,12 @@ Use load_dataset from datasets to load csv dataset.
 
     cls_dataset = load_dataset("csv", delimiter='\t', data_files={"train": [CSFD_DATASET_TRAIN],
                                                                 "test": [CSFD_DATASET_TEST]})
-7. **Implement training loop**
+4. **Implement training loop**
    1. Implement basic training loop. 
    2. Implement testing for model and dataset
    
 
-8. **Implement Embedding Averaging Model - Our Baseline** 
+5. **Implement Embedding Averaging Model - Our Baseline** 
 
 Implement model which uses average of sequence embeddings to represent the sequence.
 
@@ -104,8 +112,10 @@ Primitives to use:
 
 **[5pt]**
 
-10. **Implement CNN Model**
+6. **Implement CNN Model**
+
 ![architectures](img/ANLP_cv_03.png)
+
 For implementing architecture of the model use configuration in form of list, 
 where each item correspond to a setup of one layer of the model (prepared in **CF\#CNN_CONF**).  
 
@@ -115,48 +125,60 @@ Primitives to use:
 - nn.MaxPool1d, nn.MaxPool2d
 - nn.Dropout
 - nn.Linear
-    
 
-11. **Log these:**
+7. **Log these:**
 
 
     MANDATORY_HP = ["activation", "model", "random_emb", "emb_training", "emb_projection", "lr", "proj_size", "batch_size"]
     MANDATORY_HP_CNN = ["cnn_architecture", "n_kernel", "hidden_size"]
     MANDATORY_M = ["train_acc", "test_loss", "train_loss"] 
 
-13. **Run Experiments with different Hyper-parameters** 
+8. **Run Experiments with different Hyper-parameters** 
 
-13. **[5pt]** **The best performing experiment run at least 10 times** 
+9. **[5pt]** **The best performing experiment run at least 10 times** 
     To these runs add special tag : `best`
 
-14. **[5pt]** **Tune More Voluntarily**
+10. **[5pt]** **Tune More Voluntarily**
+
 You can use any technique in scope of CNN architecture. 
 Best performing CNN gets 5 extra points. 
-If confidence intervals of more students overlay, each student gets extra points. 
-
+If confidence intervals of more students overlay, each student gets extra points.
 
 # My results **[5pt]** 
 ## Hyper Parameter Analysis
 ### Parallel Coordinate Chart
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 _MISSING_
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ## Confusion matrix -- best run ##
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
 __MISSING__
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
 ### Discussion
-_MISSING_
 
 Which hyperparameters did I tune?
+
 Which had the greatest influence?
+
 Have I used other techniques to stabilize the training, and did I get better results?
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+_MISSING_
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 # To Think About:
 
- 
 ## Practical Question
-
 
 1.  Compare both similarity measures (Fully-connected, cosine):
 
@@ -192,7 +214,6 @@ Have I used other techniques to stabilize the training, and did I get better res
 
 ## Theoretical Questions
 
-
 1.  Is it better to train embeddings or not? Why?
 
 2.  Is it important to randomly shuffle the train data, test data? Why?
@@ -203,16 +224,3 @@ Have I used other techniques to stabilize the training, and did I get better res
 
 4.  Can you name similar baselines for other tasks (Sentiment
     classification, NER, Question Answering)?
-
-                                            
-
-
-
-
-
-
-
-
-
-
-

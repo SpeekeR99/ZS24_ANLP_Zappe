@@ -4,9 +4,10 @@ import configparser
 import os
 import pickle
 import sys
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 import random
+import numpy as np
 import torch
 # from ignite.contrib.handlers.param_scheduler import create_lr_scheduler_with_warmup
 from datasets import load_dataset
@@ -32,11 +33,31 @@ CLS_NAMES = ["neg", "neu", "pos"]
 from wandb_config import WANDB_PROJECT, WANDB_ENTITY
 
 
-def count_statistics(dataset, vectorizer) -> tuple[float, dict]:
-    ## todo CF#01
+def dataset_vocab_analysis_better(texts, top_n=-1):
+    counter = Counter()
+    for text in texts:
+        words = text.split("\t")[0].split(" ")
+        counter.update(words)
 
-    coverage = 0
-    class_distribution = defaultdict(lambda: 0)
+    if top_n < 0:
+        top_n = len(counter)
+
+    return [word for word, _ in counter.most_common(top_n)]
+
+
+def count_statistics(dataset, vectorizer) -> tuple[float, dict]:
+    # CF#01
+    for line in dataset["text"]:
+        vectorizer.sent2idx(line)
+
+    coverage = vectorizer.out_of_vocab_perc() / 100
+    class_distribution = defaultdict(int)
+    labels = np.array(dataset["label"])
+    uniq, counts = np.unique(labels, return_counts=True)
+    for c in uniq:
+        class_distribution[c] = counts[c]
+    for c in uniq:
+        class_distribution[c] /= len(dataset["label"])
 
     return coverage, class_distribution
 
@@ -50,6 +71,7 @@ class MyBaseModel(torch.nn.Module):
         self.activation = None
         self.emb_layer = None
         self.emb_proj = None
+
 
 class MyModelAveraging(MyBaseModel):
     def __init__(self, config, w2v=None):
@@ -108,61 +130,64 @@ def test_on_dataset(dataset_iterator, vectorizer, model, loss_metric_func):
 
 
 def main(config : dict):
-    
     cls_dataset = load_dataset("csv", delimiter='\t', data_files={"train": [CSFD_DATASET_TRAIN],
                                                                   "test": [CSFD_DATASET_TEST]})
-
 
     cls_train_iterator = DataLoader(cls_dataset['train'], batch_size=config['batch_size'])
     cls_test_iterator = DataLoader(cls_dataset['test'], batch_size=config['batch_size'])
 
+    # top_n_words = dataset_vocab_analysis(cls_dataset['train']['text'], top_n=-1)
+    top_n_words_better = dataset_vocab_analysis_better(cls_dataset['train']['text'], top_n=-1)
+
+    word2idx, word_vectors = load_ebs(EMB_FILE, top_n_words_better, config['vocab_size'], force_rebuild=False)
+
+    vectorizer = MySentenceVectorizer(word2idx, config["seq_len"])
 
     coverage, cls_dist = count_statistics(cls_dataset['train'], vectorizer)
     print(f"COVERAGE: {coverage}\ncls_dist:{cls_dist}")
 
-    if not config["emb_training"]:
-        word_vectors = None
-
-    if config["model"] == CNN_MODEL:
-        model = MyModelConv(config,w2v=word_vectors)
-    elif config["model"] == MEAN_MODEL:
-        model = MyModelAveraging(config,w2v=word_vectors)
-
-    num_of_params = 0
-    for x in model.parameters():
-        print(x.shape)
-        num_of_params += torch.prod(torch.tensor(x.shape), 0)
-    config["num_of_params"] = num_of_params
-    print("num of params:", num_of_params)
-
-    wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03"], config=config)
-    # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03","best"], config=config)
-
-    model.to(config["device"])
-    cross_entropy = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
-
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,0)
-
-    batch = 0
-    while True:
-        for b in cls_train_iterator:
-            texts = b["text"]
-            labels = b["label"]
-
-            if batch % 100 == 0:
-                ret = test_on_dataset(cls_test_iterator, vectorizer, model, cross_entropy)
-                conf_matrix = None # wandb.plot.confusion_matrix(...)
-                wandb.log({"conf_mat":conf_matrix})
-
-                wandb.log({"test_acc": ret["test_acc"],
-                           "test_loss": ret["test_loss"]}, commit=False)
-
-            wandb.log(
-                {"train_loss": loss, "train_acc": train_acc, "lr": lr_scheduler.get_last_lr()[0], "pred": pred,
-                 "norm": total_norm})
-            batch += 1
-
+    # if not config["emb_training"]:
+    #     word_vectors = None
+    #
+    # if config["model"] == CNN_MODEL:
+    #     model = MyModelConv(config,w2v=word_vectors)
+    # elif config["model"] == MEAN_MODEL:
+    #     model = MyModelAveraging(config,w2v=word_vectors)
+    #
+    # num_of_params = 0
+    # for x in model.parameters():
+    #     print(x.shape)
+    #     num_of_params += torch.prod(torch.tensor(x.shape), 0)
+    # config["num_of_params"] = num_of_params
+    # print("num of params:", num_of_params)
+    #
+    # # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03"], config=config)
+    # # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03","best"], config=config)
+    #
+    # model.to(config["device"])
+    # cross_entropy = nn.CrossEntropyLoss()
+    # optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
+    #
+    # lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 0)
+    #
+    # batch = 0
+    # while True:
+    #     for b in cls_train_iterator:
+    #         texts = b["text"]
+    #         labels = b["label"]
+    #
+    #         if batch % 100 == 0:
+    #             ret = test_on_dataset(cls_test_iterator, vectorizer, model, cross_entropy)
+    #             conf_matrix = None # wandb.plot.confusion_matrix(...)
+    #             # wandb.log({"conf_mat":conf_matrix})
+    #
+    #             # wandb.log({"test_acc": ret["test_acc"],
+    #             #            "test_loss": ret["test_loss"]}, commit=False)
+    #
+    #         # wandb.log(
+    #         #     {"train_loss": loss, "train_acc": train_acc, "lr": lr_scheduler.get_last_lr()[0], "pred": pred,
+    #         #      "norm": total_norm})
+    #         batch += 1
 
 
 if __name__ == '__main__':
@@ -195,5 +220,3 @@ if __name__ == '__main__':
               }
 
     main(config)
-
-
