@@ -208,7 +208,22 @@ Have I used other techniques to stabilize the training, and did I get better res
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+My final grid search looks as follows:
+
+```python
+models = ["mean", "cnn"]
+batches = [100_000, 500_000]
+batch_sizes = [32, 64]
+lrs = [0.001, 0.000_1, 0.000_01, 0.000_001]
+activations = ["relu", "gelu"]
+random_embs = [True, False]
+emb_trainings = [True, False]
+emb_projections = [True, False]
+cnn_architectures = ["A", "B", "C"]
+```
+
+Since `mean` model doesn't need to be trained with different `cnn_architecture` values, we basically have 4 total models.
+Every other hyperparameter has powers of 2 possibilities, so this makes for a total of 1 024 runs (nice number!).
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 

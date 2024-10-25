@@ -32,6 +32,7 @@ if __name__ == '__main__':
         "batches": args.batches,
         "batch_size": args.batch_size,
         "lr": args.lr,
+        "learning_rate": args.lr,  # Some tests expect "lr", others "learning_rate" ...
         "activation": args.activation,
         "random_emb": args.random_emb == "true",
         "emb_training": args.emb_training == "true",
