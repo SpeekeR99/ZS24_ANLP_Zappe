@@ -124,12 +124,16 @@ class MyBaseModel(torch.nn.Module):
         self.emb_training = config["emb_training"]
         self.emb_projection = config["emb_projection"]
 
-        if self.random_emb:
-            self.emb_layer = torch.nn.Embedding(config["vocab_size"], np.array(w2v).shape[1])
-        else:
-            self.emb_layer = torch.nn.Embedding.from_pretrained(torch.tensor(np.array(w2v)), freeze=not self.emb_training)
+        if w2v:
+            if self.random_emb:
+                self.emb_layer = torch.nn.Embedding(config["vocab_size"], np.array(w2v).shape[1])
+            else:
+                self.emb_layer = torch.nn.Embedding.from_pretrained(torch.tensor(np.array(w2v)), freeze=not self.emb_training)
 
-        self.emb_proj = torch.nn.Linear(np.array(w2v).shape[1], config["proj_size"])
+            self.emb_proj = torch.nn.Linear(np.array(w2v).shape[1], config["proj_size"])
+        else:
+            self.emb_layer = torch.nn.Embedding(config["vocab_size"], config["proj_size"])
+            self.emb_proj = torch.nn.Linear(config["proj_size"], config["proj_size"])
 
 
 class MyModelAveraging(MyBaseModel):
@@ -162,6 +166,8 @@ class MyModelConv(MyBaseModel):
 
         # CF#CNN_CONF
         # TODO: what is "hidden_size" ?!
+        self.reduced_emb_size = config["proj_size"] if self.emb_projection else np.array(w2v).shape[1]
+
         self.cnn_architecture = config["cnn_architecture"]  # for unit tests
         if self.cnn_architecture == "A":
             self.config["hidden_size"] = 500
@@ -170,14 +176,14 @@ class MyModelConv(MyBaseModel):
                                (1, config["n_kernel"], (4, 1))]
         elif self.cnn_architecture == "B":
             self.config["hidden_size"] = 514
-            self.cnn_config = [(1, config["n_kernel"], (2, 2)),
-                               (1, config["n_kernel"], (3, 2)),
-                               (1, config["n_kernel"], (4, 2))]
+            self.cnn_config = [(1, config["n_kernel"], (2, self.reduced_emb_size // 2)),
+                               (1, config["n_kernel"], (3, self.reduced_emb_size // 2)),
+                               (1, config["n_kernel"], (4, self.reduced_emb_size // 2))]
         elif self.cnn_architecture == "C":
             self.config["hidden_size"] = 35000
-            self.cnn_config = [(1, config["n_kernel"], (2, config["proj_size"])),
-                               (1, config["n_kernel"], (3, config["proj_size"])),
-                               (1, config["n_kernel"], (4, config["proj_size"]))]
+            self.cnn_config = [(1, config["n_kernel"], (2, self.reduced_emb_size)),
+                               (1, config["n_kernel"], (3, self.reduced_emb_size)),
+                               (1, config["n_kernel"], (4, self.reduced_emb_size))]
 
         self.conv_layers = []
         for i, (in_channels, out_channels, kernel_size) in enumerate(self.cnn_config):
@@ -191,7 +197,7 @@ class MyModelConv(MyBaseModel):
         # Explanation of factor (config["proj_size"] - self.cnn_config[0][2][1] + 1):
         #   With one extreme self.cnn_config[0][2][1] = 1, so the whole multiplication is * config["proj_size"]
         #   The other extreme is self.cnn_config[0][2][1] = config["proj_size"], so the whole multiplication is * 1
-        self.head = nn.Linear(len(self.cnn_config) * config["n_kernel"] * (config["proj_size"] - self.cnn_config[0][2][1] + 1), NUM_CLS)
+        self.head = nn.Linear(len(self.cnn_config) * config["n_kernel"] * (self.reduced_emb_size - self.cnn_config[0][2][1] + 1), NUM_CLS)
 
         self.modules = nn.ModuleList(self.conv_layers)
 
@@ -267,8 +273,23 @@ def train_model(cls_train_iterator, cls_val_iterator, vectorizer, w2v, config):
     config["num_of_params"] = num_of_params
     print("num of params:", num_of_params)
 
-    # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03"], config=config)
-    # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03","best"], config=config)
+    # Configuration string for wandb better grouping / filtering
+    config_string = f"model={config['model']}_" \
+                    f"vocab_size={config['vocab_size']}_" \
+                    f"seq_len={config['seq_len']}_" \
+                    f"batches={config['batches']}_" \
+                    f"batch_size={config['batch_size']}_" \
+                    f"lr={config['lr']}_" \
+                    f"activation={config['activation']}_" \
+                    f"random_emb={config['random_emb']}_" \
+                    f"emb_training={config['emb_training']}_" \
+                    f"emb_projection={config['emb_projection']}_" \
+                    f"proj_size={config['proj_size']}_" \
+                    f"gradient_clip={config['gradient_clip']}_" \
+                    f"n_kernel={config['n_kernel']}_" \
+                    f"cnn_architecture={config['cnn_architecture']}"
+    # wandb.init(name=config_string, project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03"], config=config)
+    # wandb.init(name=config_string, project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03","best"], config=config)
 
     model.to(config["device"])
     cross_entropy = nn.CrossEntropyLoss()
@@ -344,35 +365,3 @@ def main(config : dict):
     model, used_loss = train_model(cls_train_iterator, cls_val_iterator, vectorizer, word_vectors, config)
     ret_dict = test_on_dataset(cls_test_iterator, vectorizer, model, used_loss)
     # wandb.log({"test_acc": ret_dict["test_acc"], "test_loss": ret_dict["test_loss"]})
-
-
-if __name__ == '__main__':
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    # device = "cpu"
-    print(f"Using {device}")
-
-    N_KERNEL = 64
-    PROJ_SIZE = 100
-
-    config = {"batch_size": 33,
-              "vocab_size": 20000,
-              # "model": MEAN_MODEL,
-              "model": CNN_MODEL,
-              "device": device,
-              "n_kernel": N_KERNEL,
-
-              "activation": "relu",
-              "random_emb": False,
-              "emb_training": False,
-              "emb_projection": True,
-              "proj_size": PROJ_SIZE,
-              "cnn_architecture": "C",
-
-              "emb_size": 300,
-              "lr": 0.0005,
-              "gradient_clip": .5,
-              'batches': 200000,
-              "seq_len": 100
-              }
-
-    main(config)
