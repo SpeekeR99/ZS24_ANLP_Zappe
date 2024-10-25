@@ -61,6 +61,31 @@ Do not count pad tokens
 
 The dataset looks balanced.
 
+For this task, I have also created histograms of sequence lengths, for later use in the config (`config["seq_len"]`).
+
+![Histogram](img/training_seq_len_hist.svg?raw=True "Histogram")
+
+![Histogram](img/testing_seq_len_hist.svg?raw=True "Histogram")
+
+    Mean training sequence length: 50.554254517156686
+    Std dev training sequence length: 51.75246448261309
+    Mean testing sequence length: 50.75292701608491
+    Std dev testing sequence length: 52.29935225534991
+    Q3 training sequence length: 66.0
+    Q3 testing sequence length: 66.0
+    90-percentile training sequence length: 112.0
+    90-percentile testing sequence length: 114.0
+
+| Seq Len Statistics | Train         | Test          |
+|--------------------|---------------|---------------|
+| Mean ± Std Dev     | 50.55 ± 51.75 | 50.75 ± 52.30 |
+| Q3; 75 %           | 66.00         | 66.00         |
+| 90-percentile      | 112.00        | 114.00        |
+
+For the reason of the high standard deviation, I have decided to use the mean + std dev as the sequence length -- approximately 100.
+Which is somewhere between the 75 % quantile and the 90-percentile, which seems as reasonable sequence length to me.
+Extremely long sequences are not that common (100+ words), so we are not loosing that much information and shorter sentences will get noised with padding.
+
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 2. **Prepare Word Embeddings**.

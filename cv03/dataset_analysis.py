@@ -42,6 +42,39 @@ def main():
     plt.savefig("img/testing_labels_hist.svg")
     plt.show()
 
+    # Sequence length histogram
+    train_seq_len = train_data[0].apply(lambda x: len(x.split())).to_numpy()
+    test_seq_len = test_data[0].apply(lambda x: len(x.split())).to_numpy()
+
+    plt.hist(train_seq_len, bins=50, rwidth=0.75)
+    plt.title("Training sequence length histogram")
+    plt.xlabel("Sequence length")
+    plt.ylabel("Count")
+    plt.grid()
+    plt.savefig("img/training_seq_len_hist.svg")
+    plt.show()
+
+    plt.hist(test_seq_len, bins=50, rwidth=0.75)
+    plt.title("Testing sequence length histogram")
+    plt.xlabel("Sequence length")
+    plt.ylabel("Count")
+    plt.grid()
+    plt.savefig("img/testing_seq_len_hist.svg")
+    plt.show()
+
+    # Mean + std dev of sequence length
+    print(f"Mean training sequence length: {train_seq_len.mean()}")
+    print(f"Std dev training sequence length: {train_seq_len.std()}")
+    print(f"Mean testing sequence length: {test_seq_len.mean()}")
+    print(f"Std dev testing sequence length: {test_seq_len.std()}")
+
+    # Q3
+    print(f"Q3 training sequence length: {np.percentile(train_seq_len, 75)}")
+    print(f"Q3 testing sequence length: {np.percentile(test_seq_len, 75)}")
+    # 90-percentile
+    print(f"90-percentile training sequence length: {np.percentile(train_seq_len, 90)}")
+    print(f"90-percentile testing sequence length: {np.percentile(test_seq_len, 90)}")
+
 
 if __name__ == "__main__":
     main()
