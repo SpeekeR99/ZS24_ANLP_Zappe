@@ -165,17 +165,16 @@ class MyModelConv(MyBaseModel):
         super(MyModelConv, self).__init__(config, w2v),
 
         # CF#CNN_CONF
-        # TODO: what is "hidden_size" ?!
         self.reduced_emb_size = config["proj_size"] if self.emb_projection else np.array(w2v).shape[1]
 
         self.cnn_architecture = config["cnn_architecture"]  # for unit tests
         if self.cnn_architecture == "A":
-            self.config["hidden_size"] = 500
+            self.config["hidden_size"] = 505
             self.cnn_config = [(1, config["n_kernel"], (2, 1)),
                                (1, config["n_kernel"], (3, 1)),
                                (1, config["n_kernel"], (4, 1))]
         elif self.cnn_architecture == "B":
-            self.config["hidden_size"] = 514
+            self.config["hidden_size"] = 979
             self.cnn_config = [(1, config["n_kernel"], (2, self.reduced_emb_size // 2)),
                                (1, config["n_kernel"], (3, self.reduced_emb_size // 2)),
                                (1, config["n_kernel"], (4, self.reduced_emb_size // 2))]
@@ -197,7 +196,8 @@ class MyModelConv(MyBaseModel):
         # Explanation of factor (config["proj_size"] - self.cnn_config[0][2][1] + 1):
         #   With one extreme self.cnn_config[0][2][1] = 1, so the whole multiplication is * config["proj_size"]
         #   The other extreme is self.cnn_config[0][2][1] = config["proj_size"], so the whole multiplication is * 1
-        self.head = nn.Linear(len(self.cnn_config) * config["n_kernel"] * (self.reduced_emb_size - self.cnn_config[0][2][1] + 1), NUM_CLS)
+        self.final_proj = nn.Linear(len(self.cnn_config) * config["n_kernel"] * (self.reduced_emb_size - self.cnn_config[0][2][1] + 1), config["hidden_size"])
+        self.head = nn.Linear(config["hidden_size"], NUM_CLS)
 
         self.modules = nn.ModuleList(self.conv_layers)
 
@@ -223,7 +223,11 @@ class MyModelConv(MyBaseModel):
 
         conv_outs = torch.cat(conv_outs, dim=1)
         conv_outs = conv_outs.view(conv_outs.size(0), -1)
-        final = self.head(conv_outs)
+
+        final_proj = self.final_proj(conv_outs)
+        final_proj = self.activation(final_proj)
+
+        final = self.head(final_proj)
         return self.softmax(final)
 
 
@@ -288,7 +292,7 @@ def train_model(cls_train_iterator, cls_val_iterator, vectorizer, w2v, config):
                     f"gradient_clip={config['gradient_clip']}_" \
                     f"n_kernel={config['n_kernel']}_" \
                     f"cnn_architecture={config['cnn_architecture']}"
-    # wandb.init(name=config_string, project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03"], config=config)
+    wandb.init(name=config_string, project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03"], config=config)
     # wandb.init(name=config_string, project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv03","best"], config=config)
 
     model.to(config["device"])
@@ -324,14 +328,14 @@ def train_model(cls_train_iterator, cls_val_iterator, vectorizer, w2v, config):
                 model.eval()
 
                 ret = test_on_dataset(cls_val_iterator, vectorizer, model, cross_entropy)
-                # wandb.log({"val_acc": ret["test_acc"], "val_loss": ret["test_loss"]}, commit=False)
-                # conf_matrix = wandb.plot.confusion_matrix(preds=ret["test_pred_clss"].cpu().numpy(), y_true=ret["test_enum_gold"].cpu().numpy(), class_names=CLS_NAMES)
-                # wandb.log({"conf_mat":conf_matrix})
+                wandb.log({"val_acc": ret["test_acc"], "val_loss": ret["test_loss"]}, commit=False)
+                conf_matrix = wandb.plot.confusion_matrix(preds=ret["test_pred_clss"].cpu().numpy(), y_true=ret["test_enum_gold"].cpu().numpy(), class_names=CLS_NAMES)
+                wandb.log({"conf_mat":conf_matrix})
                 print(f"batch: {batch}, val_acc: {ret['test_acc']}, val_loss: {ret['test_loss']}")
 
                 model.train()
 
-            # wandb.log({"train_loss": loss, "train_acc": train_acc, "lr": lr_scheduler.get_last_lr()[0], "pred": pred, "norm": total_norm})
+            wandb.log({"train_loss": loss, "train_acc": train_acc, "lr": lr_scheduler.get_last_lr()[0], "pred": pred, "norm": total_norm})
             print(f"batch: {batch}, train_acc: {train_acc}, train_loss: {loss}")
             batch += 1
 
@@ -364,4 +368,5 @@ def main(config : dict):
 
     model, used_loss = train_model(cls_train_iterator, cls_val_iterator, vectorizer, word_vectors, config)
     ret_dict = test_on_dataset(cls_test_iterator, vectorizer, model, used_loss)
-    # wandb.log({"test_acc": ret_dict["test_acc"], "test_loss": ret_dict["test_loss"]})
+    wandb.log({"test_acc": ret_dict["test_acc"], "test_loss": ret_dict["test_loss"]})
+    print(f"test_acc: {ret_dict['test_acc']}, test_loss: {ret_dict['test_loss']}")
