@@ -43,8 +43,8 @@ for batch in "${batches[@]}"; do
                     for et in "${emb_trainings[@]}"; do
                         for ep in "${emb_projections[@]}"; do
                             for cnn_architecture in "${cnn_architectures[@]}"; do
-                                echo $model_mean $batch $bs $lr $act $re $et $ep $cnn_architecture
-                                qsub -v model="$model_mean",vocab_size="$vocab_size",seq_len="$seq_len",batch="$batch",bs="$bs",lr="$lr",act="$act",re="$re",et="$et",ep="$ep",proj_size="$proj_size",gradient_clip="$gradient_clip",n_kernels="$n_kernels",cnn_architecture="$cnn_architecture" cv03_meta.sh
+                                echo $model_cnn $batch $bs $lr $act $re $et $ep $cnn_architecture
+                                qsub -v model="$model_cnn",vocab_size="$vocab_size",seq_len="$seq_len",batch="$batch",bs="$bs",lr="$lr",act="$act",re="$re",et="$et",ep="$ep",proj_size="$proj_size",gradient_clip="$gradient_clip",n_kernels="$n_kernels",cnn_architecture="$cnn_architecture" cv03_meta.sh
                             done
                         done
                     done
