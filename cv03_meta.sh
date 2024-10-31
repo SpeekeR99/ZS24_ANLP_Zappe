@@ -12,7 +12,7 @@ cp -r $DATADIR/* .
 CONTAINER=/cvmfs/singularity.metacentrum.cz/NGC/PyTorch:21.03-py3.SIF
 PYTHON_SCRIPT=run_cv03.py
 
-singularity run $CONTAINER pip install -r /storage/plzen1/home/zapped99/anlp/anlp-2024_zappe_dominik/requirements.txt --user
-singularity run $CONTAINER python -m wandb login --relogin ff0893cd7836ab91e9386aa470ed0837f2479f9b
+singularity run $CONTAINER pip3 install -r /storage/plzen1/home/zapped99/anlp/anlp-2024_zappe_dominik/requirements.txt --user
+singularity run $CONTAINER python3 -m wandb login --relogin ff0893cd7836ab91e9386aa470ed0837f2479f9b
 
-singularity run $CONTAINER python $PYTHON_SCRIPT -model $model -vocab_size $vocab_size -seq_len $seq_len -batches $batch -batch_size $bs -lr $lr -activation $act -random_emb $re -emb_training $et -emb_projection $ep -proj_size $proj_size -gradient_clip $gradient_clip -n_kernel $n_kernels -cnn_architecture $cnn_architecture
+singularity run $CONTAINER python3 $PYTHON_SCRIPT -model $model -vocab_size $vocab_size -seq_len $seq_len -batches $batch -batch_size $bs -lr $lr -activation $act -random_emb $re -emb_training $et -emb_projection $ep -proj_size $proj_size -gradient_clip $gradient_clip -n_kernel $n_kernels -cnn_architecture $cnn_architecture
