@@ -162,6 +162,39 @@ Primitives to use:
 - nn.Dropout
 - nn.Linear
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+I have fiddled with the `hidden_size` parameter and changed the values from
+
+    A = 500
+    B = 514
+    C = 35000
+
+to
+
+    A = 505
+    B = 979
+    C = 35000
+
+because the test `test_parameters_number` was failing with the default values provided in the original code.
+
+This might be due to my change of architecture `B`, where I changed the kernels from
+
+    (2, 2)
+    (3, 2)
+    (4, 2)
+
+to
+
+    (2, reduced_emb_size / 2)
+    (3, reduced_emb_size / 2)
+    (4, reduced_emb_size / 2)
+
+so that the `B` architecture is right in between the `A` and `C` architectures.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+
 7. **Log these:**
 
 
@@ -207,6 +240,12 @@ Which had the greatest influence?
 Have I used other techniques to stabilize the training, and did I get better results?
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+Side note according the `tests`: `test_clss_dist` is failing for me, because my coverage is `0.7969` and the test tests whether the coverage is in the interval `(0.68, 0.78)`.
+
+Should the test be updated and maybe check for coverage `>= 0.68` rather than `== 0.73 ± 0.05`?
+
+---
 
 My final grid search looks as follows:
 
