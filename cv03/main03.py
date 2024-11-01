@@ -91,7 +91,7 @@ def load_ebs(emb_file, top_n_words: list, wanted_vocab_size, force_rebuild=False
     return word2idx, vecs
 
 
-def count_statistics(dataset, vectorizer) -> tuple[float, dict]:
+def count_statistics(dataset, vectorizer):
     # CF#01
     for line in dataset["text"]:
         vectorizer.sent2idx(line)
