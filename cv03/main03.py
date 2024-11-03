@@ -93,6 +93,7 @@ def load_ebs(emb_file, top_n_words: list, wanted_vocab_size, force_rebuild=False
 
 def count_statistics(dataset, vectorizer):
     # CF#01
+    vectorizer.reset_counter()
     for line in dataset["text"]:
         vectorizer.sent2idx(line)
 

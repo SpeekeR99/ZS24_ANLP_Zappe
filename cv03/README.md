@@ -247,7 +247,7 @@ Should the test be updated and maybe check for coverage `>= 0.68` rather than `=
 
 ---
 
-My final grid search looks as follows:
+My first version of final grid search looked as follows:
 
 ```python
 models = ["mean", "cnn"]
@@ -263,6 +263,30 @@ cnn_architectures = ["A", "B", "C"]
 
 Since `mean` model doesn't need to be trained with different `cnn_architecture` values, we basically have 4 total models.
 Every other hyperparameter has powers of 2 possibilities, so this makes for a total of 1 024 runs (nice number!).
+
+Anyways, why "first version"? Because the default value of batches was `100 000` and `500 000` (two different values across the files from You).
+I once again believed the default values to be correct and ran the first 1024 runs for no reason.
+I have later altered the `batches` to be values `10 000` and `20 000`, which still seemed as way too many, so later I reduced it to `2 000` and `5 000`, which was later further decreased to `1 000` and `2 000`.
+
+Side note: why are we training until we hit the amount of batches? Why not use epochs normally? I don't understand this.
+
+---
+
+***BIG PROBLEM***: I have had this problem since the very beginning, but this exercise annoyed me so much I have to write this out.
+Wandb server on KIV / Wandb overall is NOT PREPARED for distributed computing.
+Most of my jobs on MetaCentrum are failing, because the server cannot handle "Too Many Requests for url: ...".
+I tried to run the jobs with `plzen=True` to "virtually limit" the number of jobs, that run at the same time, but it didn't help.
+Instead I seem to have run out of mana, because MetaCentrum does not want to run my jobs for 3 days now.
+So I am back at the general queue and things are not great.
+This problem was not a big deal in the first exercise, but the second one (last one) was a big problem already.
+I currently (numbers may change in the following few days, but only a bit) have 4630 runs overall for this exercise, out of which only 1813 finished successfully -- others failed mostly because of Wandb "Too Many Requests" error, or random errors like "Wandb Innit failed", or "raise Exception("problem")" (which is a funny one :) ).
+
+***BIG PROBLEM 2*** (related to above): I am unable to run the `tests` for this exercise, because I am getting `HTTPError: 429 Client Error: Too Many Requests for url: https://api.wandb.ai/graphql` error.
+I have been trying to run the `tests` for the last two days (writing this at Sunday night -- so whole weekend `tests` are unusable because of Wandb errors).
+
+---
+
+Back to the discussion about the hyperparameters.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
