@@ -207,6 +207,54 @@ so that the `B` architecture is right in between the `A` and `C` architectures.
 9. **[5pt]** **The best performing experiment run at least 10 times** 
     To these runs add special tag : `best`
 
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+I simply chose the best by grouping the runs by `name` and filtering the `model` and `test_acc`
+
+The "best" mean model seems to be (grouped `test_acc` = 0.759):
+
+    batches=5000
+    batch_size=64
+    lr=0.001
+    activation=relu
+    random_emb=False
+    emb_training=True
+    emb_projection=True
+
+The "best" CNN models seem to be:
+
+Architecture A (grouped `test_acc` = 0.656):
+
+    batches=2000
+    batch_size=64
+    lr=0.0001
+    activation=relu
+    random_emb=True
+    emb_training=True
+    emb_projection=True
+
+Architecture B (grouped `test_acc` = 0.704):
+
+    batches=2000
+    batch_size=32
+    lr=0.001
+    activation=relu
+    random_emb=False
+    emb_training=True
+    emb_projection=True
+
+Architecture C (grouped `test_acc` = 0.704):
+
+    batches: 10000
+    batch_size: 32
+    lr: 0.0001
+    activation: relu
+    random_emb: False
+    emb_training: True
+    emb_projection: True
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
 10. **[5pt]** **Tune More Voluntarily**
 
 You can use any technique in scope of CNN architecture. 
@@ -219,7 +267,34 @@ If confidence intervals of more students overlay, each student gets extra points
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+![Parallel Coordinate Chart](img/parallel_coordinate_chart_all.svg?raw=True "Parallel Coordinate Chart")
+
+(note: architecture A seems to be superior, but keep in mind, that the `mean` model might be affecting that, since it had it's "cnn architecture" set to A (for simpler -- unified -- running of the script))
+
+Following charts show the Hyper Parameters better, because they are split by the `model` into two charts:
+
+(mean)
+
+![Parallel Coordinate Chart](img/parallel_coordinate_chart_mean.svg?raw=True "Parallel Coordinate Chart")
+
+(cnn)
+
+![Parallel Coordinate Chart](img/parallel_coordinate_chart_cnn.svg?raw=True "Parallel Coordinate Chart")
+
+The following charts show the Parallel Coordinate Chart for runs that had either over 0.7 `test_acc` or over 0.75 `test_acc` (this is done before running the `best` runs, so the `best` runs):
+
+(test_acc > 0.7)
+
+![Parallel Coordinate Chart](img/parallel_coordinate_chart_over_0_7.svg?raw=True "Parallel Coordinate Chart")
+
+(test_acc > 0.75)
+
+![Parallel Coordinate Chart](img/parallel_coordinate_chart_over_0_75.svg?raw=True "Parallel Coordinate Chart")
+
+From the last one, we can see that the `mean` model outperforms every other model and that the `learning_rate` with the value of 0.001 seems to be the best too.
+Also the pretrained embeddings seem to be better than the random embeddings with the ability to train them also.
+
+TODO: parallel coordinate chart pro `best` runs
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -227,7 +302,7 @@ _MISSING_
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-__MISSING__
+TODO: confusion matrix pro `best` runs
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -244,6 +319,18 @@ Have I used other techniques to stabilize the training, and did I get better res
 Side note according the `tests`: `test_clss_dist` is failing for me, because my coverage is `0.7969` and the test tests whether the coverage is in the interval `(0.68, 0.78)`.
 
 Should the test be updated and maybe check for coverage `>= 0.68` rather than `== 0.73 ± 0.05`?
+
+---
+
+Important note about my terminology:
+
+`train_loss`, `train_acc` -- these are the values from the training set.
+
+`val_loss`, `val_acc` -- these are the values from the validation set (training set split).
+
+`test_loss`, `test_acc` -- these values are not going to be curves on the plots, because I get to know them and log them only once -- at the end of the training (data the model has never seen).
+
+(I know You mentioned a different terminology, so I believe my `validation` == Your `dev`, but I am not entirely sure)
 
 ---
 
@@ -287,6 +374,61 @@ I have been trying to run the `tests` for the last two days (writing this at Sun
 ---
 
 Back to the discussion about the hyperparameters.
+
+![Parameter Importance](img/parameter_importance_test_acc.png?raw=True "Parameter Importance")
+
+![Parameter Importance](img/parameter_importance_test_loss.png?raw=True "Parameter Importance")
+
+As I expected, the biggest importance seems to be the `learning rate` (as usually).
+Next the embeddings make the biggest differences too -- `random_emb`, `emb_training`, `emb_projection`.
+
+Suprisingly, the `architecture` of the CNN with the valu `C` seems to be also important, but I don't understand why other values (`A`, `B`) are not in that list at all.
+
+Batches were not really that important for the training itself as for the MetaCentrum runs, because the original values made the jobs not be able to finish in time.
+
+ReLU and GELU activations seem to have similar importance -- not that big of a difference between the two, but all the `best` runs had `ReLU` activation.
+
+Let's do a closer analysis for each of the HPs (I will show everything on the `test_acc`):
+
+1. `model`:
+    - Here I have thought, that the CNN's would outperform the mean model, but if I group by `model` the outcome is as follows:
+    - ![Model](img/test_acc_groupby_model.svg?raw=True "Model")
+    - The `mean` model seems to be outpeforming the `cnn` models by a little bit.
+2. `batches`:
+    - I cannot really show any good chart here, because none of the `cnn` models were able to finish in time for `batches` = 20 000 nor 10 000.
+    - For this reason, the other values are biased, because the `mean` model was able to finish on them, and some good `cnn` models too (mostly `batches` = 2 000 is biased and has the most finished runs).
+3. `batch_size`:
+    - I personally had no personal preference here, but I have tried batch sizes 32 and 64.
+    - ![Batch Size](img/test_acc_groupby_batch_size.svg?raw=True "Batch Size")
+    - As we can see, the `batch_size` = 64 seems to be overall better
+4. `learning_rate`:
+    - I have tried learning rates 0.001, 0.0001, 0.00001, 0.000001. and I personally expected the 0.001 (highest one) to be the best.
+    - ![Learning Rate](img/test_acc_groupby_lr.svg?raw=True "Learning Rate")
+    - The `learning_rate` = 0.0001 seems to be the best, but my choice (0.001) is not that far behind.
+5. `activation`:
+    - I have tried `ReLU` and `GELU` activations.
+    - Since both are very similar, I had no preference here.
+    - ![Activation](img/test_acc_groupby_activation.svg?raw=True "Activation")
+    - The `ReLU` activation seems to be slightly better over the `GELU` activation.
+6. `random_emb`:
+    - As before, I expected the random embedding initialization to be worse than the pretrained embeddings.
+    - ![Random Emb](img/test_acc_groupby_random_emb.svg?raw=True "Random Emb")
+    - To my surprise, they both seem to be very similar (again, as last exercise).
+    - What is more, the random initialization seems to be very slightly better.
+7. `emb_training`:
+    - As before, I expected the embeddings to be better when trained.
+    - ![Emb Training](img/test_acc_groupby_emb_training.svg?raw=True "Emb Training")
+    - Truly, the trained embeddings seem to be way better, which is no surprise.
+    - It makes sense, because the embeddings are trained on the same data, so they should be better.
+8. `emb_projection`:
+    - As before, I expected the projection of embeddings to be worth it and be better.
+    - ![Emb Projection](img/test_acc_groupby_emb_projection.svg?raw=True "Emb Projection")
+    - And it is, the projection of embeddings seems to be better off.
+9. `cnn_architecture`:
+    - Here, it is interesting, because my architecture `A` has kernel sizes `(x, 1)`, architecture `B` has kernel sizes `(x, reduced_emb_size / 2)`, and architecture `C` has kernel sizes `(x, reduced_emb_size)`.
+    - So it is the matter of the kernel sizes and I personally the middle ground -- `B` -- to be the best. Simply because `A` pays too much attention to details -- the words themselves, and `C` pays almost no attention to detail -- pays attention to the whole sentences (?).
+    - My graphs here are not that good again, because `A` is biased by the `mean` model, which was set to `A` for the sake of unified running of the script.
+    - But from filtering and grouping and looking by eye, the `B` architecture seems to be the best (on average), but it is closely followed by the `C` architecture.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
