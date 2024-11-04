@@ -468,7 +468,10 @@ for this reason I will be also adding charts of `val_acc`, where the trends and 
     - ![Batch Size](img/val_acc_groupby_batch_size.svg?raw=True "Batch Size")
     - As we can see, the `batch_size` = 64 seems to be overall better
     - Judging by the `val_acc` chart, the `batch_size` could have been further explored, because it seems that larger batch sizes might have been proficient for the models.
-    - (Also, I have no idea why there is that linear part of the 64 curve, but it is at the 10k steps mark, so that might have to do with my `batches` (steps) problem)
+    - (Also, that linear part of the 64 curve is at the 10k steps mark, so that for sure has to do with my `batches` (steps) problem;
+it will also occur on the next graphs -- how I understand it -- only `mean` models got to the 20k steps mark, `cnn` models took longer to train and were killed by the walltime on Meta.
+So the models, that got to the 20k steps had better accuracy, because on average, they are only `mean` models (good models), but the models that got to the 10k steps -- those are combined `mean` and `cnn` models, so the accuracy is lower on average.
+This phenomena creates a big step in the middle-ground where we have no idea / data about the models, that is compensated visually by the linear part of the curve)
 4. `learning_rate`:
     - I have tried learning rates 0.001, 0.0001, 0.00001, 0.000001. and I personally expected the 0.001 (highest one) to be the best.
     - ![Learning Rate](img/test_acc_groupby_lr.svg?raw=True "Learning Rate")
@@ -489,6 +492,9 @@ for this reason I will be also adding charts of `val_acc`, where the trends and 
     - ![Random Emb](img/val_acc_groupby_random_emb.svg?raw=True "Random Emb")
     - To my surprise, they both seem to be very similar (again, as last exercise).
     - What is more, the random initialization seems to be very slightly better.
+    - What is interesting to me, that can be seen from the `val_acc` chart, is that given enough time (20k+ steps), the random embeddings become superior to the pretrained ones.
+On the other hand, given less time (10k- steps), there is not enough time for the random embeddings to learn enough, so the pretrained embeddings end up being better.
+This makes total sense to me, apart from the logic of random embeddings being overall better, I really expected pretrained and fine-tuned ones to be way better.
 7. `emb_training`:
     - As before, I expected the embeddings to be better when trained.
     - ![Emb Training](img/test_acc_groupby_emb_training.svg?raw=True "Emb Training")
