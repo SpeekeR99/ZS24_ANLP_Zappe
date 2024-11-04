@@ -1,11 +1,15 @@
+import functools
 import sys
 
 import pandas as pd
+from tqdm import tqdm
 import wandb
 import itertools
 
 from wandb_config import WANDB_PROJECT, WANDB_ENTITY
+import logging
 
+logging.basicConfig(level=logging.INFO)
 
 def grid_status(pd_dataframe, map_hp_vals):
     lists = map_hp_vals.values()
@@ -15,7 +19,7 @@ def grid_status(pd_dataframe, map_hp_vals):
         instance = {}
         for i, k in enumerate(keys):
             if k not in pd_dataframe.columns:
-                print(f"{k} not in cols {pd_dataframe.columns}")
+                logging.debug(f"{k} not in cols {pd_dataframe.columns}")
                 continue
             instance[k] = element[i]
         runs = pd_dataframe.loc[(pd_dataframe[list(instance)] == pd.Series(instance)).all(axis=1)]
@@ -60,7 +64,8 @@ def filter_data(pf_datafframe, filter):
     return pf_datafframe.loc[(pf_datafframe[list(filter)] == pd.Series(filter)).all(axis=1)]
 
 
-def load_runs(tags :list, mandatory_hp=None, mandatory_m=None, minimum_runtime_s=20, minimum_steps=500, unfold=False):
+def load_runs(tags :tuple, mandatory_hp=None, mandatory_m=None, minimum_runtime_s=20, minimum_steps=500, unfold=False):
+    
     runs_all = 0
 
     api = wandb.Api()
@@ -78,14 +83,14 @@ def load_runs(tags :list, mandatory_hp=None, mandatory_m=None, minimum_runtime_s
     else:
         df = None
 
-    for i_run, run in enumerate(runs):
-        print(f"RUN {run.name}", file=sys.stderr)
+    for i_run, run in tqdm(enumerate(runs)):
+        logging.debug(f"RUN {run.name}")
 
         ok = True
         for tag in tags:
             if tag not in run.tags:
                 ok = False
-                print(f"--expected tag {tag} not present",file=sys.stderr)
+                logging.debug(f"--expected tag {tag} not present")
                 break
         if not ok:
             continue
@@ -102,13 +107,13 @@ def load_runs(tags :list, mandatory_hp=None, mandatory_m=None, minimum_runtime_s
 
         js_summary = run.summary._json_dict
         if "_runtime" not in js_summary or "_step" not in js_summary:
-            print("--NOT USING: runtime or steps not present", file=sys.stderr)
+            logging.debug("--NOT USING: runtime or steps not present")
             continue
         if js_summary["_runtime"] < minimum_runtime_s:
-            print(f"--NOT USING : {js_summary['_runtime']}s", file=sys.stderr)
+            logging.debug(f"--NOT USING : {js_summary['_runtime']}s")
             continue
         if js_summary["_step"] < minimum_steps:
-            print(f"--{js_summary['_step']}steps", file=sys.stderr)
+            logging.debug(f"--{js_summary['_step']}steps")
             continue
 
         ## mandatory M
@@ -116,7 +121,7 @@ def load_runs(tags :list, mandatory_hp=None, mandatory_m=None, minimum_runtime_s
         if mandatory_m:
             for m_m in mandatory_m:
                 if m_m not in js_summary:
-                    print(f"--mandatory metric '{m_m}' not found in run ... skipping", file=sys.stderr)
+                    logging.debug(f"--mandatory metric '{m_m}' not found in run ... skipping")
                     ok = False
                     break
                 else:
@@ -130,7 +135,7 @@ def load_runs(tags :list, mandatory_hp=None, mandatory_m=None, minimum_runtime_s
             js_config = run.config
             for m_hp in mandatory_hp:
                 if m_hp not in js_config:
-                    print(f"--mandatory hp '{m_hp}' not found in run ... skipping", file=sys.stderr)
+                    logging.debug(f"--mandatory hp '{m_hp}' not found in run ... skipping")
                     ok = False
                     break
                 else:
@@ -155,9 +160,9 @@ def load_runs(tags :list, mandatory_hp=None, mandatory_m=None, minimum_runtime_s
         else:
             df = pd.concat([df, entry], ignore_index=True)
 
-        print("--ok", file=sys.stderr)
+        logging.debug("--ok")
 
-    print(f"=============================\nUsing {len(df)}/{runs_all} runs", file=sys.stderr)
+    print(f"=============================\nUsing {len(df)}/{runs_all} runs\n You can use logging:debug for more info", file=sys.stderr)
 
     return df
 
