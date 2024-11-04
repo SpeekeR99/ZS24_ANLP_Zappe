@@ -4,13 +4,17 @@ stages:
 
 test_job:
     stage: test
+    image:
+        name: anlp_gitlab_runner
+        entrypoint : [""]
     rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
     script: 
         - pip3 install -r requirements.txt
         - python3 -m wandb login ff0893cd7836ab91e9386aa470ed0837f2479f9b
         - rm -f results/*.json
-        - sh run_tests.sh
+        - /bin/bash run_tests.sh
+    timeout: 1h
     artifacts:
         when: always
         paths:
@@ -19,6 +23,9 @@ test_job:
 
 results_job:
     stage: results
+    image:
+        name: anlp_gitlab_runner
+        entrypoint : [""]
     rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     script: 
