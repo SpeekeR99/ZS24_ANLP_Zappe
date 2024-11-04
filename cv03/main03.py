@@ -97,7 +97,36 @@ def count_statistics(dataset, vectorizer):
     for line in dataset["text"]:
         vectorizer.sent2idx(line)
 
+    # This is 0.7969
     coverage = 1 - (vectorizer.out_of_vocab_perc() / 100)
+    # print(f"COVERAGE: {coverage}")
+
+    # This approach yields also 0.7969
+    # all = 0
+    # known = 0
+    # for line in dataset["text"]:
+    #     vectorized = vectorizer.sent2idx(line)
+    #     for token in vectorized:
+    #         if token == vectorizer.word2idx[PAD]:
+    #             continue
+    #         elif token == vectorizer.word2idx[UNK]:
+    #             all += 1
+    #         else:
+    #             all += 1
+    #             known += 1
+    # coverage = known / all
+    # print(f"COVERAGE: {coverage}")
+
+    # This approach yields 0.7934
+    # all = 0
+    # known = 0
+    # for line in dataset["text"]:
+    #     all += len(line.split())
+    #     for word in line.split():
+    #         if word in vectorizer.word2idx:
+    #             known += 1
+    # coverage = known / all
+    # print(f"COVERAGE: {coverage}")
 
     class_distribution = defaultdict(int)
     labels = np.array(dataset["label"])
