@@ -450,9 +450,13 @@ ReLU and GELU activations seem to have similar importance -- not that big of a d
 
 Let's do a closer analysis for each of the HPs (I will show everything on the `test_acc`):
 
+(note: on the following charts, `test_acc` looks really oddly, because it is just a number logged after the training, so there are no curves, no trends... They may look like curves, but that is just because of the differences in `batches`, a.k.a. `steps`, which are on the x axis;
+for this reason I will be also adding charts of `val_acc`, where the trends and curves are normal)
+
 1. `model`:
     - Here I have thought, that the CNN's would outperform the mean model, but if I group by `model` the outcome is as follows:
     - ![Model](img/test_acc_groupby_model.svg?raw=True "Model")
+    - ![Model](img/val_acc_groupby_model.svg?raw=True "Model")
     - The `mean` model seems to be outpeforming the `cnn` models by a little bit.
     - This is also supported by the runs with the `best` tag.
 2. `batches`:
@@ -461,31 +465,41 @@ Let's do a closer analysis for each of the HPs (I will show everything on the `t
 3. `batch_size`:
     - I personally had no personal preference here, but I have tried batch sizes 32 and 64.
     - ![Batch Size](img/test_acc_groupby_batch_size.svg?raw=True "Batch Size")
+    - ![Batch Size](img/val_acc_groupby_batch_size.svg?raw=True "Batch Size")
     - As we can see, the `batch_size` = 64 seems to be overall better
+    - Judging by the `val_acc` chart, the `batch_size` could have been further explored, because it seems that larger batch sizes might have been proficient for the models.
+    - (Also, I have no idea why there is that linear part of the 64 curve, but it is at the 10k steps mark, so that might have to do with my `batches` (steps) problem)
 4. `learning_rate`:
     - I have tried learning rates 0.001, 0.0001, 0.00001, 0.000001. and I personally expected the 0.001 (highest one) to be the best.
     - ![Learning Rate](img/test_acc_groupby_lr.svg?raw=True "Learning Rate")
-    - The `learning_rate` = 0.0001 seems to be the best, but my choice (0.001) is not that far behind.
+    - ![Learning Rate](img/val_acc_groupby_lr.svg?raw=True "Learning Rate")
+    - The `learning_rate` = 0.0001 seems to be the best, but my choice (0.001) is not that far behind (from the `test_acc` perspective).
+    - Judging by the `val_acc` chart tho, the `learning_rate` = 0.001 might have been the best choice.
+    - This parameter (similarly to batch_size), might have been proficient to explore further with maybe bigger values (0.01, or even 0.1).
 5. `activation`:
     - I have tried `ReLU` and `GELU` activations.
     - Since both are very similar, I had no preference here.
     - ![Activation](img/test_acc_groupby_activation.svg?raw=True "Activation")
+    - ![Activation](img/val_acc_groupby_activation.svg?raw=True "Activation")
     - The `ReLU` activation seems to be slightly better over the `GELU` activation.
     - This is also supported by the runs with the `best` tag.
 6. `random_emb`:
     - As before, I expected the random embedding initialization to be worse than the pretrained embeddings.
     - ![Random Emb](img/test_acc_groupby_random_emb.svg?raw=True "Random Emb")
+    - ![Random Emb](img/val_acc_groupby_random_emb.svg?raw=True "Random Emb")
     - To my surprise, they both seem to be very similar (again, as last exercise).
     - What is more, the random initialization seems to be very slightly better.
 7. `emb_training`:
     - As before, I expected the embeddings to be better when trained.
     - ![Emb Training](img/test_acc_groupby_emb_training.svg?raw=True "Emb Training")
+    - ![Emb Training](img/val_acc_groupby_emb_training.svg?raw=True "Emb Training")
     - Truly, the trained embeddings seem to be way better, which is no surprise.
     - It makes sense, because the embeddings are trained on the same data, so they should be better.
     - Once again this is further more supported by the runs with the `best` tag.
 8. `emb_projection`:
     - As before, I expected the projection of embeddings to be worth it and be better.
     - ![Emb Projection](img/test_acc_groupby_emb_projection.svg?raw=True "Emb Projection")
+    - ![Emb Projection](img/val_acc_groupby_emb_projection.svg?raw=True "Emb Projection")
     - And it is, the projection of embeddings seems to be better off.
     - And again, this is supported yet again by the runs with the `best` tag.
 9. `cnn_architecture`:
