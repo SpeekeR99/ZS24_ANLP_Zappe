@@ -316,7 +316,7 @@ Have I used other techniques to stabilize the training, and did I get better res
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-Side note according the `tests`: `test_clss_dist` is failing for me, because my coverage is `0.7969` and the test tests whether the coverage is in the interval `(0.68, 0.78)`.
+Side note regarding the `tests`: `test_clss_dist` is failing for me, because my coverage is `0.7969` and the test tests whether the coverage is in the interval `(0.68, 0.78)`.
 
 Should the test be updated and maybe check for coverage `>= 0.68` rather than `== 0.73 ± 0.05`?
 
@@ -370,6 +370,11 @@ I currently (numbers may change in the following few days, but only a bit) have 
 
 ***BIG PROBLEM 2*** (related to above): I am unable to run the `tests` for this exercise, because I am getting `HTTPError: 429 Client Error: Too Many Requests for url: https://api.wandb.ai/graphql` error.
 I have been trying to run the `tests` for the last two days (writing this at Sunday night -- so whole weekend `tests` are unusable because of Wandb errors).
+
+Update: Monday morning, `tests` are working now, I believe it is because all my runs have finished on the MetaCentrum and possibly someone else was working on the exercise over the weekend too, so the server is not as overloaded now.
+
+Side note: the tests seem to download all the runs and then check if the tag is there and if everything is correct, wouldn't it be better (if possible) to pre-filter the runs on the server side and only send the runs with the correct tag to the client side?
+Or at least maybe be less verbose, because std out makes the tests run real slow.
 
 ---
 
