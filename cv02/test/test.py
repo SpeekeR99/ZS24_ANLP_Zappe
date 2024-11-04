@@ -39,10 +39,10 @@ class WandbTest(unittest.TestCase):
         with open(TRAIN_DATA, 'r', encoding="utf-8") as fd:
             self.train_data_texts = fd.read().split("\n")
 
-        mandatory_hp = ["random_emb", "emb_training", "emb_projection", "vocab_size", "final_metric", "lr", "optimizer", "batch_size"]
-        mandatory_m = ["train_loss", "test_loss"]
+        mandatory_hp = ("random_emb", "emb_training", "emb_projection", "vocab_size", "final_metric", "lr", "optimizer", "batch_size")
+        mandatory_m = ("train_loss", "test_loss")
 
-        self.wandb_data = wandb_utils.load_runs(["cv02"], mandatory_hp=mandatory_hp, mandatory_m=mandatory_m, minimum_runtime_s=10)
+        self.wandb_data = wandb_utils.load_runs(("cv02",), mandatory_hp=mandatory_hp, mandatory_m=mandatory_m, minimum_runtime_s=10)
 
     def clear_cache(self):
         if os.path.exists(WORD2IDX):
