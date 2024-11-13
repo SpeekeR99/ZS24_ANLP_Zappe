@@ -635,11 +635,55 @@ TL;DR:
 
 ### Section 6 - Basic Experiments Results
 
-[TODO]
+1. Discussion for NER - compare results of the individual models and try to explain why the models achieve the results you observed. Specifically compare the results achieved with RNN/LSTM and CZERT/Slavic.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+2. Discussion for TAGGING - compare results of the individual models and try to explain why the models achieve the results you observed. Specifically compare the results achieved with RNN/LSTM and CZERT/Slavic.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Section 7 - Extended Experiments Results (Bonus)
 
-[TODO] (optional)
+1. Does the model with frozen embeddings perform worse than the model with trainable embeddings?
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+2. Do you see any result improvement/impairment when freezing the lower layers of the CZERT model?
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+3. Does freezing the lower layers bring any benefits in term of results, speed of training, etc?
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+4. Does the BERT model work for Czech tasks? State the results and include a graph of eval metrics for the BERT model config for both tasks.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ## Questions to think about (test preparation, better understanding):
 

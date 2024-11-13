@@ -243,11 +243,18 @@ def main():
                       model_args.freeze_embedding_layer,
                       model_args.freeze_first_x_layers,
                       num_labels)
-    # TODO BONUS START
     # if model_args.model_type == "BERT" instantiate a CZERT model and BertTokenizerFast
     # in the same way as above just using "bert-base-cased" as a first argument for both
     # (instead of "UWB-AIR/Czert-B-base-cased")
-    # TODO BONUS END
+    if model_args.model_type == "BERT":
+        tokenizer = BertTokenizerFast.from_pretrained("bert-base-cased")
+        model = Czert("bert-base-cased",
+                        device,
+                        model_args.random_init,
+                        model_args.dropout_probs,
+                        model_args.freeze_embedding_layer,
+                        model_args.freeze_first_x_layers,
+                        num_labels)
 
     model.to(device)
     model.train()
