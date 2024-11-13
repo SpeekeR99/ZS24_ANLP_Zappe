@@ -21,8 +21,8 @@ from transformers import (
     TrainingArguments,
     set_seed,
 )
-from cv04.ner_utils import NerDataset, Split, get_labels
-from cv04.models import Czert, Slavic, LSTM, RNN
+from ner_utils import NerDataset, Split, get_labels
+from models import Czert, Slavic, LSTM, RNN
 
 import warnings
 
