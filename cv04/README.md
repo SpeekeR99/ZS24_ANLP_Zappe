@@ -550,7 +550,6 @@ It can be better seen from the following diagram:
 
 ### Section 3 - LSTM Model
 
-
 1. State the equations used for computing the activations of an LSTM model in the discussion and explain the individual gates (their purpose).
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
@@ -599,7 +598,21 @@ It can be better seen from the following diagram:
 
 ### Section 4 - Parameter Freezing & L2 Regularization
 
-[TODO]
+1. Explain in which case do we want to freeze the embedding layer. Also discuss whether it is useful to freeze embedding layer in our case when we initialize the embedding layer randomly - would you expect the model to work well with the frozen randomly initialized embedding layer?
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+In my opinion it is useful to freeze the embedding layer when we have a pre-trained embeddings and we do not want to fine-tune them.
+We may not want to fine-tune the embeddings, if we for example have a small dataset and we want the general relationships between words in the original embeddings to be preserved.
+Our small dataset may cause some previously learned relationships to be lost, if we fine-tuned the embeddings.
+
+In our case, where we initialize the embeddings randomly, it is not good to freeze the embedding layer in my opinion.
+Simply because they are random and the model should learn the embeddings during the training process.
+It may not be totally fatal for the model, but I expect it to not work well with the frozen randomly initialized embedding layer.
+I think it may not be fatal simply because the architecture of the model is not as simple and it might be able to learn some useful information elsewhere that would help it to perform well.
+But I still think it is not a good idea to freeze the embeddings in our case.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Section 5 - LR Schedule
 

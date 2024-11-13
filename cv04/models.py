@@ -9,9 +9,13 @@ def compute_l2_norm_matching(model, patterns):
     :param model: model for which an L2 norm shall be calculated
     :return: L2 norm of the model
     """
-    # TODO START
     # Compute sum of l2 norms of all parameters whose name matches at least one patter from patterns
-    # TODO END
+    l2_norm = 0
+    for name, param in model.named_parameters():
+        if any(pattern in name for pattern in patterns):
+            l2_norm += torch.norm(param, p=2)
+
+    return l2_norm
 
 
 class TokenClassifierOutput:
@@ -293,9 +297,7 @@ class RNN(torch.nn.Module):
         Compute L2 norm of the model
         :return: L2 norm value
         """
-        # TODO START
-        return compute_l2_norm_matching(self, ...) * ...
-        # TODO END
+        return compute_l2_norm_matching(self, ["new_hidden_state_layer", "output_layer"]) * self.__l2_alpha
 
     def forward(self,
                 input_ids,
@@ -352,10 +354,11 @@ class RNN(torch.nn.Module):
         Freeze embedding layer weights
         :return: N/A
         """
-        # TODO START
         # freeze embedding layer
         #  - iterate over all parameters and set x.requires_grad = False for the embedding weights
-        # TODO END
+        for name, param in self.named_parameters():
+            if "embedding" in name:
+                param.requires_grad = False
 
 
 class LSTM(torch.nn.Module):
@@ -442,19 +445,18 @@ class LSTM(torch.nn.Module):
         Freeze embedding layer weights
         :return: N/A
         """
-        # TODO START
         # freeze embedding layer
         #  - iterate over all parameters and set x.requires_grad = False for the embedding weights
-        # TODO END
+        for name, param in self.named_parameters():
+            if "embedding" in name:
+                param.requires_grad = False
 
     def compute_l2_norm(self):
         """
         Compute L2 norm of the model
         :return: L2 norm value
         """
-        # TODO START
-        return compute_l2_norm_matching(self, ...) * ...
-        # TODO END
+        return compute_l2_norm_matching(self, ["dense", "classification_head"]) * self.__l2_alpha
 
     def forward(self,
                 input_ids,
