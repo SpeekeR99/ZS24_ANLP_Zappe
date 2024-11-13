@@ -2,7 +2,8 @@ import logging
 import os
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
-from wandb_config import WANDB_PROJECT, WANDB_ENTITY
+WANDB_PROJECT = "anlp-2024_zappe_dominik"
+WANDB_ENTITY = "anlp2024"
 
 import numpy as np
 import wandb
@@ -249,12 +250,12 @@ def main():
     if model_args.model_type == "BERT":
         tokenizer = BertTokenizerFast.from_pretrained("bert-base-cased")
         model = Czert("bert-base-cased",
-                        device,
-                        model_args.random_init,
-                        model_args.dropout_probs,
-                        model_args.freeze_embedding_layer,
-                        model_args.freeze_first_x_layers,
-                        num_labels)
+                      device,
+                      model_args.random_init,
+                      model_args.dropout_probs,
+                      model_args.freeze_embedding_layer,
+                      model_args.freeze_first_x_layers,
+                      num_labels)
 
     model.to(device)
     model.train()
