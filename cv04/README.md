@@ -515,7 +515,38 @@ I personally once again believe, that the model should handle the unbalanced dat
 
 ### Section 2 - RNN Model
 
-[TODO]
+1. State the equations used for computing the activations of an RNN model.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+The next state of the RNN is dependent on the previous hidden state and the current input.
+
+The equations are as follows:
+
+    h_t = σ_h(U * x_t + V * h_(t-1) + b_h)
+    y_t = σ_y(W * h_t + b_y)
+
+Where:
+
+    h_t         current hidden state
+    σ_h         activation function for the hidden state
+    U           weight matrix for the input
+    x_t         current input
+    V           weight matrix for the previous hidden state
+    h_(t-1)     previous hidden state
+    b_h         bias for the hidden state
+    
+    y_t         current output
+    σ_y         activation function for the output
+    W           weight matrix for the hidden state
+    h_t         current hidden state
+    b_y         bias for the output
+
+It can be better seen from the following diagram:
+
+![RNN](img/RNN_diagram.png?raw=True "RNN")
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Section 3 - LSTM Model
 

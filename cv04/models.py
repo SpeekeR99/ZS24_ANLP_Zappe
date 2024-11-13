@@ -261,13 +261,22 @@ class RNN(torch.nn.Module):
         self.__hidden_state = None
         self._hidden_states = []
 
-        # TODO START
-        self._embedding_layer = ...
-        self._loss = ...
-        self._dropout_layer = ...
-        self._new_hidden_state_layer = ...
-        self._output_layer = ...
-        # TODO END
+        self._embedding_layer = torch.nn.Embedding(
+            num_embeddings=self.__vocab_size,
+            embedding_dim=self.__embedding_dimension
+        )
+        self._loss = torch.nn.CrossEntropyLoss()
+        self._dropout_layer = torch.nn.Dropout(p=self.__dropout_prob)
+        self._new_hidden_state_layer = torch.nn.Linear(
+            in_features=self.__embedding_dimension + self.__rnn_hidden_size,
+            out_features=self.__rnn_hidden_size,
+            bias=self.__use_bias
+        )
+        self._output_layer = torch.nn.Linear(
+            in_features=self.__rnn_hidden_size,
+            out_features=self._num_labels,
+            bias=self.__use_bias
+        )
 
         if freeze_embedding_layer:
             self.__freeze_embedding_layer()
@@ -303,14 +312,29 @@ class RNN(torch.nn.Module):
         :return: predictions and loss
         """
         self.__init_zero_hidden(input_ids.shape[0])
-        # TODO START
+
         # embeddings and dropouts
+        embeddings = self._embedding_layer(input_ids)
+        embeddings = self._dropout_layer(embeddings)
+
         # iteration over the individual tokens generating a sequence of hidden states (in a loop)
         # preserve all the hidden states
+        for i in range(embeddings.shape[1]):
+            current_input = embeddings[:, i, :]
+            current_hidden_state = torch.tanh(self._new_hidden_state_layer(
+                torch.cat([current_input, self.__hidden_state], dim=1))
+            )
+            # TODO: should this be here ?!
+            current_hidden_state = self._dropout_layer(current_hidden_state)
+            self.__hidden_state = current_hidden_state
+            self._hidden_states.append(current_hidden_state.clone())
+
         # create a single tensor of all the hidden states
+        self._hidden_states = torch.stack(self._hidden_states, dim=1)
+
         # apply output layer with softmax over the hidden states
-        logits = ...  # model outputs to be used to compute the loss
-        # TODO END
+        logits = self._output_layer(self._hidden_states)  # model outputs to be used to compute the loss
+
         loss = self._loss(logits.view(-1, self._num_labels), labels.view(-1))
         out = TokenClassifierOutput(logits=logits, loss=loss)
         return out
