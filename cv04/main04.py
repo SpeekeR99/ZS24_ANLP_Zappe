@@ -253,7 +253,8 @@ def main():
     for arg_class in [training_args, data_args, model_args]:
         attributes = [attr for attr in filter(lambda a: not a.startswith('__'), dir(arg_class))]
         for attribute in attributes:
-            wandb.config[attribute] = getattr(arg_class, attribute)
+            pass
+            # wandb.config[attribute] = getattr(arg_class, attribute)
 
     # Get datasets
     train_dataset = (
@@ -350,10 +351,10 @@ def do_test(model, test_dataset, training_args, data_args):
                     f"recall={logging_recall_test:.3f}, "
                     f"f1={logging_f1_test:.3f}")
 
-        wandb.run.summary["test_loss"] = logging_loss_test
-        wandb.run.summary["test_precision"] = logging_precision_test
-        wandb.run.summary["test_recall"] = logging_recall_test
-        wandb.run.summary["test_f1"] = logging_f1_test
+        # wandb.run.summary["test_loss"] = logging_loss_test
+        # wandb.run.summary["test_precision"] = logging_precision_test
+        # wandb.run.summary["test_recall"] = logging_recall_test
+        # wandb.run.summary["test_f1"] = logging_f1_test
 
     # Save predictions
     predictions_list, labels_list = align_predictions(np.array(test_predictions), np.array(test_labels))
@@ -429,14 +430,14 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, datas
                 logger.info(f"Batch {batch}: loss={logging_loss:.3f}, precision={logging_precision:.3f}, "
                             f"recall={logging_recall:.3f}, f1={logging_f1:.3f}")
 
-                wandb.log(
-                    {"training_loss": logging_loss,
-                     "training_precision": logging_precision,
-                     "training_recall": logging_recall,
-                     "training_f1": logging_f1,
-                     "lr": optimizer.state_dict()["param_groups"][0]["lr"],
-                     "epoch": epoch + 1},
-                    step=(epoch + 1) * len(train_dataset) + batch * training_args.per_device_train_batch_size)
+                # wandb.log(
+                #     {"training_loss": logging_loss,
+                #      "training_precision": logging_precision,
+                #      "training_recall": logging_recall,
+                #      "training_f1": logging_f1,
+                #      "lr": optimizer.state_dict()["param_groups"][0]["lr"],
+                #      "epoch": epoch + 1},
+                #     step=(epoch + 1) * len(train_dataset) + batch * training_args.per_device_train_batch_size)
 
             if batch % training_args.eval_steps == 0:
                 model.eval()
@@ -492,13 +493,13 @@ def do_eval(batch, dataset_args, epoch, eval_dataset, model, tokenizer, train_da
                     f"recall={logging_recall_eval:.3f}, "
                     f"f1={logging_f1_eval:.3f}")
 
-        wandb.log(
-            {"eval_loss": logging_loss_eval,
-             "eval_precision": logging_precision_eval,
-             "eval_recall": logging_recall_eval,
-             "eval_f1": logging_f1_eval,
-             "epoch": epoch + 1},
-            step=(epoch + 1) * len(train_dataset) + batch * training_args.per_device_train_batch_size)
+        # wandb.log(
+        #     {"eval_loss": logging_loss_eval,
+        #      "eval_precision": logging_precision_eval,
+        #      "eval_recall": logging_recall_eval,
+        #      "eval_f1": logging_f1_eval,
+        #      "epoch": epoch + 1},
+        #     step=(epoch + 1) * len(train_dataset) + batch * training_args.per_device_train_batch_size)
 
         print_sample_output(input_ids, batch_labels, predictions, tokenizer)
 
@@ -517,17 +518,16 @@ def print_sample_output(input_ids, labels, predictions, tokenizer):
 
 
 if __name__ == "__main__":
-    wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv04"])
+    # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv04"])
 
-    wandb.define_metric("training_loss", summary="min")
-    wandb.define_metric("training_precision", summary="max")
-    wandb.define_metric("training_recall", summary="max")
-    wandb.define_metric("training_f1", summary="max")
+    # wandb.define_metric("training_loss", summary="min")
+    # wandb.define_metric("training_precision", summary="max")
+    # wandb.define_metric("training_recall", summary="max")
+    # wandb.define_metric("training_f1", summary="max")
 
-    wandb.define_metric("eval_loss", summary="min")
-    wandb.define_metric("eval_precision", summary="max")
-    wandb.define_metric("eval_recall", summary="max")
-    wandb.define_metric("eval_f1", summary="max")
+    # wandb.define_metric("eval_loss", summary="min")
+    # wandb.define_metric("eval_precision", summary="max")
+    # wandb.define_metric("eval_recall", summary="max")
+    # wandb.define_metric("eval_f1", summary="max")
 
     main()
-

@@ -362,7 +362,156 @@ Analyse the dataset - write the results into the discussion (secion 1). Answer a
 
 ### Section 1 - Dataset Analysis
 
-[TODO]
+1. What labels are used by both datasets - write a complete list and explanation of the labels (use the referenced dataset websited).
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+CNEC (Czech Named Entity Corpus)
+
+    O           Outside         (of any entity)
+    I-T         Inside          Time expression
+    I-P         Inside          Personal name
+    I-O         Inside          Artifact name
+    I-M         Inside          Media name
+    I-I         Inside          Institution name
+    I-G         Inside          Geographical name
+    I-A         Inside          Numbers in adress
+    B-T         Beginning       Time expression
+    B-P         Beginning       Personal name
+    B-O         Beginning       Artifact name
+    B-M         Beginning       Media name
+    B-I         Beginning       Institution name
+    B-G         Beginning       Geographical name
+    B-A         Beginning       Numbers in adress
+
+---
+
+UD (Universal Dependencies)
+
+    ADJ         Adjective
+    ADP         Adposition
+    ADV         Adverb
+    AUX         Auxiliary verb
+    CCONJ       Coordinating conjunction
+    DET         Determiner
+    INTJ        Interjection
+    NOUN        Noun
+    NUM         Numeral
+    PART        Particle
+    PRON        Pronoun
+    PROPN       Proper noun
+    PUNCT       Punctuation
+    SCONJ       Subordinating conjunction
+    SYM         Symbol
+    VERB        Verb
+    X           Other
+    _           I looked into train.txt and only "_" and "aby" are labeled with this label
+                (I assume it means "Unknown" or "Not labeled" or something similar)
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+2. How large are the two datasets (train, eval, test, overall).
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+CNEC:
+
+	train:      4688 sentences
+	dev:        577 sentences
+	test:       585 sentences
+	Overall:    5850 sentences
+
+UD:
+
+	train:      103143 sentences
+	dev:        11326 sentences
+	test:       12216 sentences
+	Overall:    126685 sentences
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+3. What is the average length of a training example for the individual datasets - in number of whole words tokens as pre-tokenized in the dataset files.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+CNEC:
+
+	train:      25.529223549488055 words
+	dev:        25.642980935875215 words
+	test:       25.745299145299146 words
+	Overall:    25.562051282051282 words
+
+UD:
+
+	train:      17.582337143577362 words
+	dev:        16.988698569662724 words
+	test:       16.894482645710543 words
+	Overall:    17.46293562773809 words
+
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+4. What is the average length of a token for the individual datasets - in number of subword tokens when using `tokenizer = transformers.BertTokenizerFast.from_pretrained("UWB-AIR/Czert-B-base-cased")` - documentation: https://huggingface.co/docs/transformers/main_classes/tokenizer#transformers.PreTrainedTokenizer (methods: encode or batch_encode).
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+CNEC:
+
+	train:      35.535196245733786 tokens
+	dev:        35.76083188908146 tokens
+	test:       36.04957264957265 tokens
+	Overall:    35.60888888888889 tokens
+
+UD:
+
+	train:      23.36788730209515 tokens
+	dev:        22.416651951262583 tokens
+	test:       22.296823837590047 tokens
+	Overall:    23.179563484232546 tokens
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+5. Count statistics about class distribution in dataset (train/dev/test) for the individual datasets.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+CNEC:
+
+![Train](img/CNEC_train_label_dist.svg?raw=True "Histogram")
+
+![Dev](img/CNEC_dev_label_dist.svg?raw=True "Histogram")
+
+![Test](img/CNEC_test_label_dist.svg?raw=True "Histogram")
+
+UD:
+
+![Train](img/UD_train_label_dist.svg?raw=True "Histogram")
+
+![Dev](img/UD_dev_label_dist.svg?raw=True "Histogram")
+
+![Test](img/UD_test_label_dist.svg?raw=True "Histogram")
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+6. Based on the statistic from the questions above - are the individual datasets balanced or unbalanced? In case at least one of the dataset is unbalanced, are there any implications for the model/solution or is there anything we should be aware of?
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+CNEC:
+
+By definition of the problem the dataset MUST be unbalanced, because most of the things are "Outside of any entity" -- Label "O".)
+The dataset is unbalanced, but it should be expected.
+The model should be able to handle the unbalanced dataset -- it will probably resolve some lower weights for the common label of "Outside of any entity".
+I personally think that the model will be able to achieve good results.
+
+UD:
+
+Again, by definition of the problem, we cannot expect the natural languages to have uniformly distributed parts of speech.
+We can safely assume, that nouns will be the most common part of speech, at least for Czech language.
+So of course, the dataset is unbalanced, because nouns are the most common part of speech, whereas there is little particles for example.
+I personally once again believe, that the model should handle the unbalanced dataset well and that it will achieve good results.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Section 2 - RNN Model
 
