@@ -143,11 +143,14 @@ def lr_schedule(step: int, warmup_steps: int, total_steps: int) -> float:
     :param step: current training step
     :return: factor for LR calculation using formula 'lr * factor'
     """
-    # TODO START
     # Compute a factor for LR at the current step in interval [0, 1]
     # Use linear warmup during warmup_steps and then a linear decay to 0 (from warmup_steps to total_steps)
     # return a float number in [0, 1]
-    # TODO END
+    if step < warmup_steps:
+        return step / warmup_steps
+    else:
+        decay_steps = total_steps - warmup_steps
+        return (total_steps - step) / decay_steps
 
 
 def main():

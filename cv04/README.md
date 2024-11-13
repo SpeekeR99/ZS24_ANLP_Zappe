@@ -616,7 +616,22 @@ But I still think it is not a good idea to freeze the embeddings in our case.
 
 ### Section 5 - LR Schedule
 
-[TODO]
+1. Discuss why such LR scheduler can help to improve results. Discuss both the warmup and decay separately.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+Learning rate scheduler with linear warmup can help to improve results, because we start with a random position in the parameter space.
+We want to move slowly at the beginning, because we do not know where the minimum is.
+As we start moving towards some local minima, we can increase the learning rate to speed up the process.
+Moving on with the training, we want to decrease the learning rate to make sure we do not overshoot the minimum.
+Closing to the end of the training, we want to decrease the learning rate even more to make sure we do not oscillate around the minimum.
+
+TL;DR:
+
+    Warmup helps to prevent the model from getting stuck in some local minima.
+    Decay helps to prevent the model from overshooting the minimum.
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Section 6 - Basic Experiments Results
 
