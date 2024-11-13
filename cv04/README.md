@@ -550,7 +550,52 @@ It can be better seen from the following diagram:
 
 ### Section 3 - LSTM Model
 
-[TODO]
+
+1. State the equations used for computing the activations of an LSTM model in the discussion and explain the individual gates (their purpose).
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
+
+The LSTM model has 3 gates: forget, input, and output gate.
+The gates are used to control the flow of information through the cell state.
+
+- The forget gate decides what information to forget from the previous cell state.
+- The input gate decides what information to add to the cell state from the "current input" (candidate cell state).
+- The output gate decides what information to output from the cell state to the hidden state.
+
+The equations are as follows:
+
+    f_t = σ_f(W_f * x_t + U_f * h_(t-1) + b_f)
+    i_t = σ_i(W_i * x_t + U_i * h_(t-1) + b_i)
+    o_t = σ_o(W_o * x_t + U_o * h_(t-1) + b_o)
+    c^~_t = σ_c(W_c * x_t + U_c * h_(t-1) + b_c)
+    c_t = f_t ○ c_(t-1) + i_t ○ c^~_t
+    h_t = o_t ○ σ_h(c_t)
+
+Where:
+
+    ○           element-wise multiplication
+
+    f_t         forget gate
+    i_t         input gate
+    o_t         output gate
+    c^~_t       candidate cell state
+    σ_XYZ       activation function for the "XYZ" gate
+    W_XYZ       weight matrix for the input and the "XYZ" gate
+    U_XYZ       weight matrix for the previous hidden state and the "XYZ" gate
+    x_t         current input
+    h_(t-1)     previous hidden state
+    b_XYZ       bias for the "XYZ" gate
+
+    c_t         current cell state
+    c_(t-1)     previous cell state
+    h_t         current hidden state
+    σ_h         activation function for the hidden state
+
+It can be better seen from the following diagram:
+
+![LSTM](img/LSTM_diagram.png?raw=True "LSTM")
+
+![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
 ### Section 4 - Parameter Freezing & L2 Regularization
 

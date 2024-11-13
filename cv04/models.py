@@ -389,14 +389,29 @@ class LSTM(torch.nn.Module):
         self.__lstm_hidden_size = lstm_hidden_size
         self.__l2_alpha = l2_alpha
 
-        # TODO START
-        self._loss = ...
-        self._embedding_layer = ...
-        self._lstm = ...  # don't forget to use BiLSTM
-        self._dropout_layer = ...
-        self._dense = ...
-        self._classification_head = ...
-        # TODO END
+        self._loss = torch.nn.CrossEntropyLoss()
+        self._embedding_layer = torch.nn.Embedding(
+            num_embeddings=self.__vocab_size,
+            embedding_dim=self.__embedding_dimension
+        )
+        self._lstm = torch.nn.LSTM(  # don't forget to use BiLSTM
+            input_size=self.__embedding_dimension,
+            hidden_size=self.__lstm_hidden_size,
+            num_layers=self.__lstm_layers,
+            batch_first=True,
+            bidirectional=True,
+        )
+        self._dropout_layer = torch.nn.Dropout(p=self.__dropout_prob)
+        self._dense = torch.nn.Linear(
+            in_features=self.__lstm_hidden_size * 2,
+            out_features=self.__lstm_hidden_size * 2,
+            bias=self.__use_bias
+        )
+        self._classification_head = torch.nn.Linear(
+            in_features=self.__lstm_hidden_size * 2,
+            out_features=self._num_labels,
+            bias=self.__use_bias
+        )
 
         if freeze_first_x_layers > 0:
             self.__freeze_x_bottom_layers(freeze_first_x_layers)
@@ -455,16 +470,21 @@ class LSTM(torch.nn.Module):
         :param labels: expected labels
         :return: predictions and loss
         """
-
-        # TODO START
         # apply embeddings and dropouts
+        embeddings = self._embedding_layer(input_ids)
+        embeddings = self._dropout_layer(embeddings)
+
         # BiLSTM
+        lstm_output, _ = self._lstm(embeddings)
         # Dropout
+        lstm_output = self._dropout_layer(lstm_output)
+
         # Dense layer with ReLu
+        lstm_output = torch.relu(self._dense(lstm_output))
+
         # Output layer with Softmax
-        logits = ...  # model outputs to be used to compute the loss
-        # TODO END
+        logits = self._classification_head(lstm_output)  # model outputs to be used to compute the loss
+
         loss = self._loss(logits.view(-1, self._num_labels), labels.view(-1))
         out = TokenClassifierOutput(logits=logits, loss=loss)
         return out
-
