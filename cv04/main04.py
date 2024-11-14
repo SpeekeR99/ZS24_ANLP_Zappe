@@ -29,7 +29,7 @@ import warnings
 warnings.simplefilter("ignore")
 
 logger = logging.getLogger(__name__)
-MODEL_TYPES = ["RNN", "LSTM", "CZERT", "SLAVIC"]
+MODEL_TYPES = ["RNN", "LSTM", "CZERT", "SLAVIC", "BERT"]
 
 labels = None
 label_map = None

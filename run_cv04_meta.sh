@@ -9,7 +9,7 @@
 # datadirs=("cv04/data" "cv04/data-mt")
 # labels=("cv04/data/labels.txt" "cv04/data-mt/labels.txt")
 # eval_steps=(200 300)
-# num_train_epochs=(1000 10)
+# num_train_epochs=(100 10)
 # tasks=("NER" "TAGGING")
 
 # batch_size=8
