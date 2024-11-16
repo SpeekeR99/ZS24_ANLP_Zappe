@@ -2,8 +2,7 @@ import logging
 import os
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
-WANDB_PROJECT = "anlp-2024_zappe_dominik"
-WANDB_ENTITY = "anlp2024"
+from wandb_config import WANDB_PROJECT, WANDB_ENTITY
 
 import numpy as np
 import wandb
@@ -21,8 +20,8 @@ from transformers import (
     TrainingArguments,
     set_seed,
 )
-from ner_utils import NerDataset, Split, get_labels
-from models import Czert, Slavic, LSTM, RNN
+from cv04.ner_utils import NerDataset, Split, get_labels
+from cv04.models import Czert, Slavic, LSTM, RNN
 
 import warnings
 
