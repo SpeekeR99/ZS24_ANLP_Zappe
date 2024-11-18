@@ -31,6 +31,7 @@ results_job:
     script: 
         - pip3 install -r requirements.txt
         - cp ~/docker_runner/authenticate-git.sh .
+        - chmod 770 authenticate-git.sh
         - ./authenticate-git.sh
         - cp ~/docker_runner/generate_results_report.py .
         - cp ~/docker_runner/repository_generator.py .

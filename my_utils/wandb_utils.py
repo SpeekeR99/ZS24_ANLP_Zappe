@@ -161,8 +161,8 @@ def load_runs(tags :tuple, mandatory_hp=None, mandatory_m=None, minimum_runtime_
             df = pd.concat([df, entry], ignore_index=True)
 
         logging.debug("--ok")
-
-    print(f"=============================\nUsing {len(df)}/{runs_all} runs\n You can use logging:debug for more info", file=sys.stderr)
+    if df is not None:
+        print(f"=============================\nUsing {len(df)}/{runs_all} runs\n You can use logging:debug for more info", file=sys.stderr)
 
     return df
 
