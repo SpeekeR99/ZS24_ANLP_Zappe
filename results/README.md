@@ -10,12 +10,13 @@
 
 ## cv01
 
-|                             | acc   |   acc_val |   hp experiments | metacentrum   |
-|:----------------------------|:------|----------:|-----------------:|:--------------|
-| anlp-2024_teply_bohdan      | OK    |   99.9048 |                2 |               |
-| anlp-2024_cifka_daniel      | OK    |   99.3333 |                2 |               |
-| anlp-2024_kimlova_vladimira | OK    |   99.6667 |                2 |               |
-| anlp-2024_chodora_jan       | OK    |   99.6667 |                2 |               |
+|                              | acc   |   acc_val |   hp experiments | metacentrum   |
+|:-----------------------------|:------|----------:|-----------------:|:--------------|
+| anlp-2024_teply_bohdan       | OK    |   99.9048 |                2 |               |
+| anlp-2024_cifka_daniel       | OK    |   99.3333 |                2 |               |
+| anlp-2024_kimlova_vladimira  | OK    |   99.6667 |                2 |               |
+| anlp-2024_chodora_jan        | OK    |   99.6667 |                2 |               |
+| anlp-2024_schnurpfeil_daniel | OK    |   99.031  |                2 |               |
 
 
 
