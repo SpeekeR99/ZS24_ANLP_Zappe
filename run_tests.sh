@@ -45,10 +45,10 @@ eval prepare_cv01
 eval prepare_cv02
 eval prepare_cv03
 eval prepare_cv04
-python3 -m unittest test_cv_01.py
-python3 -m unittest test_cv_02.py
-python3 -m unittest test_cv_03.py
-python3 -m unittest test_cv_04.py
+python3 -m unittest test_cv01.py
+python3 -m unittest test_cv02.py
+python3 -m unittest test_cv03.py
+python3 -m unittest test_cv04.py
 # prepare the tests as necessary
 # eval prepare_$OLD_ASSIGNMENT_TO_RUN
 # eval prepare_$ASSIGNMENT_TO_RUN
