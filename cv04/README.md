@@ -760,8 +760,17 @@ just an intuition; I also do not have much experience with this, so I cannot rea
 
 ![FREEZE](img/Freeze_first_f1.svg?raw=True "F1 scores for different models")
 
-From the loss graph, we can see that the model with 0 frozen lower layers performed the worst!
+From the loss graph, it may seem, that the model with 0 frozen layers was the "worst".
 On the F1 graph, all the models seem to be more or less the same (the losses were not that different either).
+
+![FREEZE](img/Freeze_first_f1_parallel.svg?raw=True "F1 scores for different models")
+
+![FREEZE](img/Freeze_first_f1_parallel_grouped_by.svg?raw=True "F1 scores for different models")
+
+On the graphs above, we can see that the model with 0 frozen performed the "best" overall.
+But the differences on the F1 scores are small (0.842 - 0.856)!
+Be aware of that scale, because the differences are really really small.
+
 So the answer is no, I do not see any result improvement / impairment when freezing the lower layers of the CZERT model.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
