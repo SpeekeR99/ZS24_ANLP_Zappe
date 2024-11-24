@@ -639,7 +639,30 @@ TL;DR:
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+Since we figured out that the dataset are (and have to be -- by the definition of the problem) unbalanced, I am going to be projecting the "goodness" of the model based on the F1 score.
+That is because the F1 score is a harmonic mean of precision and recall and that makes up for the unbalanced dataset (it is a good metric here in my opinion).
 
+I would expect the LSTM model to perform better than the RNN model (if comparing that way).
+If we are comparing RNN/LSTM with CZERT/SLAVIC, I would expect the CZERT/SLAVIC to perform better, because they are big pre-trained models.
+
+![MODEL_TYPE_F1](img/NER_model_type_f1_parallel.svg?raw=True "F1 scores for different models")
+
+The graph above shows the mapping of average model (group-by model type) F1 scores for the NER task.
+
+As expected, CZERT and SLAVIC models outperform the RNN and LSTM models.
+As expected, the LSTM model outperforms the RNN model.
+
+My runs were run with the default hyperparameters, so the CZERT and SLAVIC models were trained on way less epochs, than RNN and LSTM models, so the following graphs look somewhat weird and bad.
+
+![MODEL_TYPE_LOSS](img/NER_model_type_eval_loss.svg?raw=True "Losses for different models")
+
+As we can see, LSTM started to get overfit, but it still outperformed the RNN model.
+
+![MODEL_TYPE_F1](img/NER_model_type_f1.svg?raw=True "F1 scores for different models")
+
+From the F1 scores, we can see, that the pre-trained models were good right from the start,
+whereas the RNN/LSTM models needed some time to get better, but they were not able to catch up
+with the pre-trained models even though, they were trained way longer, than the CZERT/SLAVIC models.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -647,7 +670,34 @@ TL;DR:
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+As above, I will be using F1 score again, for the same reasons.
 
+Again, I would expect the LSTM model to perform better than the RNN model, simply because it is a more complex model based on RNN,
+so it is logical to me, that it should perform better (otherwise why would it exist? -- or ok, it would exist, but nobody would use it).
+If we are comparing RNN/LSTM with CZERT/SLAVIC, I would once again of course expect the CZERT/SLAVIC to perform better.
+
+![MODEL_TYPE_F1](img/TAGGING_model_type_f1_parallel.svg?raw=True "F1 scores for different models")
+
+The graph above shows the mapping of average model (group-by model type) F1 scores for the TAGGING task.
+
+As expected, CZERT and SLAVIC models outperform the RNN and LSTM models.
+But this time, the LSTM model performed way better than on the NER task, it almost reached the CZERT/SLAVIC models.
+RNN model once again, the simplest, the worst.
+
+Here the problem with different epochs is not present, because the dataset was really big and all the models had the same amount of epochs.
+
+![MODEL_TYPE_LOSS](img/TAGGING_model_type_eval_loss.svg?raw=True "Losses for different models")
+
+From the eval_loss graph, we can see, that the LSTM model did not overfit this time.
+We can once again see how good the pre-trained big models are from the get-go.
+
+![MODEL_TYPE_F1](img/TAGGING_model_type_f1.svg?raw=True "F1 scores for different models")
+
+On the F1 scores graph, we can see, that the pre-trained big models are constantly good, but we can focus
+on the LSTM model and see, that it is getting better and better, by the end of the training it was almost
+as good as CZERT or SLAVIC (same for eval_loss graph above).
+
+This surprises me a bit, because I would not expect LSTM to be that good, but it is really good.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
