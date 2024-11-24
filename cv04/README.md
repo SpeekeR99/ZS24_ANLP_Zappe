@@ -642,6 +642,29 @@ TL;DR:
 Since we figured out that the dataset are (and have to be -- by the definition of the problem) unbalanced, I am going to be projecting the "goodness" of the model based on the F1 score.
 That is because the F1 score is a harmonic mean of precision and recall and that makes up for the unbalanced dataset (it is a good metric here in my opinion).
 
+Before answering the main question, I would like to show parallel coordinate charts of the tuned hyperparameters for both tasks.
+Tuned hyperparameters are:
+
+    - no_bias (true/false)
+    - learning_rate (0.0001/0.001)
+    - l2_alpha (0.01/0)
+
+(questionably, NER/TAGGING task can be also taken as a "hyperparameter" of sorts)
+
+![HP](img/Parallel_no_bias.svg?raw=True "Parallel coordinate chart of tuned hyperparameters")
+
+![HP](img/Parallel_lr.svg?raw=True "Parallel coordinate chart of tuned hyperparameters")
+
+![HP](img/Parallel_l2_alpha.svg?raw=True "Parallel coordinate chart of tuned hyperparameters")
+
+From those charts, we cannot see much, both options of each hyperparameter had good runs and bad runs.
+
+![HP](img/Parallel_task.svg?raw=True "Parallel coordinate chart of tuned hyperparameters")
+
+From the last chart though, we can clearly see, that the TAGGING task was overall easier for the models to solve, than the NER task.
+
+Now let's get back to the main question.
+
 I would expect the LSTM model to perform better than the RNN model (if comparing that way).
 If we are comparing RNN/LSTM with CZERT/SLAVIC, I would expect the CZERT/SLAVIC to perform better, because they are big pre-trained models.
 
