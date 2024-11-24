@@ -41,11 +41,19 @@ prepare_cv05 ()
   echo "... cv05 prepared ..."
 }
 
+eval prepare_cv01
+eval prepare_cv02
+eval prepare_cv03
+eval prepare_cv04
+python3 -m unittest test_cv01.py
+python3 -m unittest test_cv02.py
+python3 -m unittest test_cv03.py
+python3 -m unittest test_cv04.py
 # prepare the tests as necessary
-eval prepare_$OLD_ASSIGNMENT_TO_RUN
-eval prepare_$ASSIGNMENT_TO_RUN
+# eval prepare_$OLD_ASSIGNMENT_TO_RUN
+# eval prepare_$ASSIGNMENT_TO_RUN
 
-# run the tests
-# python3 -m unittest test_`echo $OLD_ASSIGNMENT_TO_RUN`.py
-python3 -m unittest test_`echo $ASSIGNMENT_TO_RUN`.py
+# # run the tests
+# # python3 -m unittest test_`echo $OLD_ASSIGNMENT_TO_RUN`.py
+# python3 -m unittest test_`echo $ASSIGNMENT_TO_RUN`.py
 exit $?
