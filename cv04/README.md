@@ -742,8 +742,7 @@ On the other hand, I would expect BERT with frozen embeddings to be the worst, b
 
 From the graphs above, we can see, that my expectations were correct.
 
-What is more, we can see that the BERT runs had a lot of variance, which is probably caused by the fact, that the model was not trained on Czech data, so it was kind of "guessing".
-CZERT runs on the other hand were practically the same, very stable and very good.
+We can see a little tendency of BERT to start overfitting.
 
 The freezing of the embeddings did not have a big impact, I expected the gap between the two curves to be bigger.
 
@@ -792,7 +791,8 @@ This is really odd and I do not know how to interpret / explain this.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-BERT does not work well for Czech tasks, at least not with the hyperparameters I tried to tune on the tasks I have tried to solve.
+BERT works surprisingly well for the Czech tasks, it is not as good as CZERT or SLAVIC (obviously, since they were trained on Czech / Slavic languages).
+But it is still better than LSTM and RNN models.
 
 ![BERT](img/BERT_more_like_FART_f1_parallel.svg?raw=True "F1 scores for different models")
 (raw runs)
@@ -800,7 +800,8 @@ BERT does not work well for Czech tasks, at least not with the hyperparameters I
 ![BERT](img/BERT_more_like_FART_f1_parallel_grouped_by.svg?raw=True "F1 scores for different models")
 (grouped by model type)
 
-On the graphs above, we can see that the BERT model was not able to achieve good results on the Czech tasks.
+On the graphs above, we can see that the BERT model was able to achieve good results on the Czech tasks.
+This honestly surprises me, but it could be because the BERT model is really big and it has learnt a lot of semantics and connections between words on the English data.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
