@@ -730,7 +730,22 @@ This surprises me a bit, because I would not expect LSTM to be that good, but it
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+Since we are comparing CZERT and BERT model, I would always expect CZERT to be better here, because it was trained on Czech data.
+Bert was trained on English data, so it should not be bad, but it should not be as good as CZERT, especially when freezing the embeddings.
 
+I would expect CZERT with trainable embeddings to be the best, because it can learn the embeddings during the training process.
+On the other hand, I would expect BERT with frozen embeddings to be the worst, because it cannot learn the embeddings and it was trained on English data.
+
+![FREEZE](img/Freeze_emb_eval_loss.svg?raw=True "Losses for different models")
+
+![FREEZE](img/Freeze_emb_f1.svg?raw=True "F1 scores for different models")
+
+From the graphs above, we can see, that my expectations were correct.
+
+What is more, we can see that the BERT runs had a lot of variance, which is probably caused by the fact, that the model was not trained on Czech data, so it was kind of "guessing".
+CZERT runs on the other hand were practically the same, very stable and very good.
+
+The freezing of the embeddings did not have a big impact, I expected the gap between the two curves to be bigger.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -738,7 +753,16 @@ This surprises me a bit, because I would not expect LSTM to be that good, but it
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+I would expect the model to perform worse for frozen lower layers, but I do not really have a good reason for that --
+just an intuition; I also do not have much experience with this, so I cannot really say for sure.
 
+![FREEZE](img/Freeze_first_eval_loss.svg?raw=True "Losses for different models")
+
+![FREEZE](img/Freeze_first_f1.svg?raw=True "F1 scores for different models")
+
+From the loss graph, we can see that the model with 0 frozen lower layers performed the worst!
+On the F1 graph, all the models seem to be more or less the same (the losses were not that different either).
+So the answer is no, I do not see any result improvement / impairment when freezing the lower layers of the CZERT model.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -746,7 +770,12 @@ This surprises me a bit, because I would not expect LSTM to be that good, but it
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+I would expect the frozen models to train faster, because they have less parameters to train.
 
+![FREEZE](img/Freeze_first_runtime.svg?raw=True "Losses for different models")
+
+The graph above does not support my intuition at all. In fact the most frozen model has the highest runtime.
+This is really odd and I do not know how to interpret / explain this.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -754,7 +783,15 @@ This surprises me a bit, because I would not expect LSTM to be that good, but it
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+BERT does not work well for Czech tasks, at least not with the hyperparameters I tried to tune on the tasks I have tried to solve.
 
+![BERT](img/BERT_more_like_FART_f1_parallel.svg?raw=True "F1 scores for different models")
+(raw runs)
+
+![BERT](img/BERT_more_like_FART_f1_parallel_grouped_by.svg?raw=True "F1 scores for different models")
+(grouped by model type)
+
+On the graphs above, we can see that the BERT model was not able to achieve good results on the Czech tasks.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
