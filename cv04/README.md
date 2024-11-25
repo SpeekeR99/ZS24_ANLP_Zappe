@@ -1,6 +1,6 @@
 # CV04 - Named Entity Recognition/Morphological Tagging
 
-**Deadline**: 20. 11. 2023 23:59:59
+**Deadline**: 2. 12. 2023 23:59:59
 
 **Maximum points:** 20 + 5 (bonus)
 

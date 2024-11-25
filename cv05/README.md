@@ -1,6 +1,7 @@
 # KIV / ANLP Exercise 05
 
 *Maximum points: 20 + 5* 
+**Deadline**: 15. 12. 2023 23:59:59
 
 # Implement and run experiments [10pt] 
 1. **Run Experiments with different Hyper-parameters [5pt]** 
