@@ -31,7 +31,7 @@
 | anlp-2024_schnurpfeil_daniel | ok       | ok       | f        | ok       | 5       |          | ok     |   0.119392 |              |
 | anlp-2024_teply_bohdan       | ok       | ok       | f        | ok       | 5       |          | ok     |   1.82477  |              |
 | anlp-2024_cifka_daniel       | F        | ok       | f        | ok       | 5       | LOW      | ok     |   1.8361   |              |
-| anlp-2024_zappe_dominik      | ok       | ok       | ok       | ok       | 5       |          | ok     |   1.8385   | 53.87s       |
+| anlp-2024_zappe_dominik      | ok       | ok       | ok       | ok       | 5       |          | ok     |   1.8385   | 49.13s       |
 | anlp-2024_kimlova_vladimira  | ok       | ok       | ok       | ok       | 5       |          | ok     |   1.61836  | 46.92s       |
 
 
@@ -54,7 +54,7 @@
 |                              |   CKPT1_Discussion |   CKPT2 | CKPT2_Discussion   |   CKPT3 | CKPT3_Discussion   |   CKPT4 | CKPT4_Discussion   |   CKPT5 | CKPT5_Discussion   |   CKPT6 | CKPT6_Discussion   |   CKPT7 | CKPT7_Discussion   |   Sum_Tests | Overall   |
 |:-----------------------------|-------------------:|--------:|:-------------------|--------:|:-------------------|--------:|:-------------------|--------:|:-------------------|--------:|:-------------------|--------:|:-------------------|------------:|:----------|
 | anlp-2024_schnurpfeil_daniel |                  0 |     3.5 |                    |     2.5 |                    |       2 |                    |       1 |                    |     3   |                    |       3 |                    |        15   |           |
-| anlp-2024_zappe_dominik      |                  0 |     3.5 |                    |     2.5 |                    |       2 |                    |       1 |                    |     1.5 |                    |       0 |                    |        10.5 |           |
-| anlp-2024_kimlova_vladimira  |                  0 |     3.5 |                    |     2.5 |                    |       2 |                    |       1 |                    |     1.5 |                    |       0 |                    |        10.5 |           |
+| anlp-2024_zappe_dominik      |                  0 |     3.5 |                    |     2.5 |                    |       2 |                    |       1 |                    |     3   |                    |       3 |                    |        15   |           |
+| anlp-2024_kimlova_vladimira  |                  0 |     3.5 |                    |     2.5 |                    |       2 |                    |       1 |                    |     3   |                    |       3 |                    |        15   |           |
 | anlp-2024_teply_bohdan       |                  0 |     0   |                    |     0   |                    |       0 |                    |       0 |                    |     1.5 |                    |       0 |                    |         1.5 |           |
 
