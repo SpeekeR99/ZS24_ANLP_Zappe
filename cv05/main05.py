@@ -26,13 +26,13 @@ class MyRegressor(torch.nn.Module):
 
 
 def main(config):
-    # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv05"], config=config)
+    wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv05"], config=config)
     # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv05", "best"], config=config)
 
     tokenizer = AutoTokenizer.from_pretrained(config["model_type"])
 
     if config["task"] == "sts":
-        # wandb.log({"test_loss": None, "train_loss": None})
+        wandb.log({"test_loss": None, "train_loss": None})
 
         model = AutoModel.from_pretrained(config["model_type"])
         model = MyRegressor(model)
@@ -45,11 +45,14 @@ def main(config):
         train_data = pd.read_csv(train_data_fp, sep='\t', header=None, encoding="utf-8", quoting=csv.QUOTE_NONE, quotechar='"')
         test_data = pd.read_csv(test_data_fp, sep='\t', header=None, encoding="utf-8", quoting=csv.QUOTE_NONE, quotechar='"')
 
-        train_loader = DataLoader(train_data.values.tolist(), batch_size=config["batch_size"], shuffle=True)
-        test_loader = DataLoader(test_data.values.tolist(), batch_size=config["batch_size"], shuffle=False)
+        train_inputs = tokenizer(list(train_data[0]), list(train_data[1]), padding=True, truncation=True, return_tensors="pt", max_length=config["seq_len"])
+        test_inputs = tokenizer(list(test_data[0]), list(test_data[1]), padding=True, truncation=True, return_tensors="pt", max_length=config["seq_len"])
+
+        train_loader = DataLoader(list(zip(train_inputs["input_ids"], train_data[2])), batch_size=config["batch_size"], shuffle=True)
+        test_loader = DataLoader(list(zip(test_inputs["input_ids"], test_data[2])), batch_size=config["batch_size"], shuffle=False)
 
     else:  # config["task"] == "sentiment":
-        # wandb.log({"test_loss": None, "test_acc": None, "train_loss": None})
+        wandb.log({"test_loss": None, "test_acc": None, "train_loss": None})
 
         model = AutoModelForSequenceClassification.from_pretrained(config["model_type"], num_labels=3)
         loss_func = torch.nn.CrossEntropyLoss()
@@ -60,26 +63,27 @@ def main(config):
 
         cls_dataset = load_dataset("csv", delimiter='\t', data_files={"train": [train_data_fp], "test": [test_data_fp]})
 
-        train_loader = DataLoader(cls_dataset["train"], batch_size=config["batch_size"], shuffle=True)
-        test_loader = DataLoader(cls_dataset["test"], batch_size=config["batch_size"], shuffle=False)
+        train_inputs = tokenizer(cls_dataset["train"]["text"], padding=True, truncation=True, return_tensors="pt", max_length=config["seq_len"])
+        test_inputs = tokenizer(cls_dataset["test"]["text"], padding=True, truncation=True, return_tensors="pt", max_length=config["seq_len"])
 
+        train_loader = DataLoader(list(zip(train_inputs["input_ids"], cls_dataset["train"]["label"])), batch_size=config["batch_size"], shuffle=True)
+        test_loader = DataLoader(list(zip(test_inputs["input_ids"], cls_dataset["test"]["label"])), batch_size=config["batch_size"], shuffle=False)
+
+    model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
-    seq_len = config["seq_len"]
 
     if config["task"] == "sts":
         for epoch in range(config["epochs"]):
             model.train()
             running_loss = 0
-            for i, batch in enumerate(train_loader):
+            for input_ids, labels in train_loader:
                 optimizer.zero_grad()
 
-                input_ids = tokenizer(list(batch[0]), padding=True, truncation=True, return_tensors="pt", max_length=seq_len)["input_ids"]
-                input_ids_2 = tokenizer(list(batch[1]), padding=True, truncation=True, return_tensors="pt", max_length=seq_len)["input_ids"]
-                input = torch.cat([input_ids, input_ids_2], dim=1)
-                outputs = model(input)
+                input_ids = input_ids.to(device)
+                outputs = model(input_ids)
 
-                loss = loss_func(outputs, batch[2].float())
+                loss = loss_func(outputs, labels.float().to(device))
                 loss.backward()
 
                 optimizer.step()
@@ -87,38 +91,36 @@ def main(config):
                 running_loss += loss.item()
 
             running_loss /= len(train_loader)
-            print(f"Epoch {epoch}, loss: {running_loss}")
-            # wandb.log({"train_loss": running_loss})
+            print(f"Epoch {epoch}, train_loss: {running_loss}")
+            wandb.log({"train_loss": running_loss})
 
             running_loss = 0
             model.eval()
             with torch.no_grad():
-                for i, batch in enumerate(test_loader):
-                    input_ids = tokenizer(list(batch[0]), padding=True, truncation=True, return_tensors="pt", max_length=seq_len)["input_ids"]
-                    input_ids_2 = tokenizer(list(batch[1]), padding=True, truncation=True, return_tensors="pt", max_length=seq_len)["input_ids"]
-                    input = torch.cat([input_ids, input_ids_2], dim=1)
-                    outputs = model(input)
+                for input_ids, labels in test_loader:
+                    input_ids = input_ids.to(device)
+                    outputs = model(input_ids)
 
-                    loss = loss_func(outputs, batch[2].float())
+                    loss = loss_func(outputs, labels.float().to(device))
 
                     running_loss += loss.item()
 
             running_loss /= len(test_loader)
-            print(f"Epoch {epoch}, test loss: {running_loss}")
-            # wandb.log({"test_loss": running_loss})
+            print(f"Epoch {epoch}, test_loss: {running_loss}")
+            wandb.log({"test_loss": running_loss})
 
             lr_scheduler.step()
     else:
         for epoch in range(config["epochs"]):
             model.train()
             running_loss = 0
-            for i, batch in enumerate(train_loader):
+            for input_ids, labels in train_loader:
                 optimizer.zero_grad()
 
-                input_ids = tokenizer(batch["text"], padding=True, truncation=True, return_tensors="pt", max_length=seq_len)["input_ids"]
+                input_ids = input_ids.to(device)
                 outputs = model(input_ids)
 
-                loss = loss_func(outputs.logits, batch["label"])
+                loss = loss_func(outputs.logits, labels.to(device))
                 loss.backward()
 
                 optimizer.step()
@@ -126,36 +128,36 @@ def main(config):
                 running_loss += loss.item()
 
             running_loss /= len(train_loader)
-            print(f"Epoch {epoch}, loss: {running_loss}")
-            # wandb.log({"train_loss": running_loss})
+            print(f"Epoch {epoch}, train_loss: {running_loss}")
+            wandb.log({"train_loss": running_loss})
 
             running_loss = 0
             running_acc = 0
             model.eval()
             with torch.no_grad():
-                for i, batch in enumerate(test_loader):
-                    input_ids = tokenizer(batch["text"], padding=True, truncation=True, return_tensors="pt", max_length=seq_len)["input_ids"]
+                for input_ids, labels in test_loader:
+                    input_ids = input_ids.to(device)
                     outputs = model(input_ids)
 
-                    loss = loss_func(outputs.logits, batch["label"])
+                    loss = loss_func(outputs.logits, labels.to(device))
 
                     running_loss += loss.item()
-                    acc = (outputs.logits.argmax(dim=1) == batch["label"]).float().mean()
+                    acc = (outputs.logits.argmax(dim=1) == labels).float().mean()
                     running_acc += acc
 
             running_loss /= len(test_loader)
-            print(f"Epoch {epoch}, test loss: {running_loss}")
-            # wandb.log({"test_loss": running_loss})
+            print(f"Epoch {epoch}, test_loss: {running_loss}")
+            wandb.log({"test_loss": running_loss})
             running_acc /= len(test_loader)
-            print(f"Epoch {epoch}, test acc: {running_acc}")
-            # wandb.log({"test_acc": running_acc})
+            print(f"Epoch {epoch}, test_acc: {running_acc}")
+            wandb.log({"test_acc": running_acc})
 
             lr_scheduler.step()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-task", type=str, default="sentiment")  # < 0.65 for sts; > 0.75 for sentiment
+    parser.add_argument("-task", type=str, default="sts")  # < 0.65 for sts; > 0.75 for sentiment
     parser.add_argument("-model_type", type=str, default="UWB-AIR/Czert-B-base-cased")
     parser.add_argument("-epochs", type=int, default=10)
     parser.add_argument("-batch_size", type=int, default=32)
