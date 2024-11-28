@@ -142,7 +142,7 @@ def main(config):
                     loss = loss_func(outputs.logits, labels.to(device))
 
                     running_loss += loss.item()
-                    acc = (outputs.logits.argmax(dim=1) == labels).float().mean()
+                    acc = (outputs.logits.argmax(dim=1) == labels.to(device)).float().mean().item()
                     running_acc += acc
 
             running_loss /= len(test_loader)

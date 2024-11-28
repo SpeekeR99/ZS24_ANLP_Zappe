@@ -38,3 +38,4 @@ seqeval==1.2.2
 sklearn==0.0
 transformers==4.21.1
 datasets~=3.0.2
+regex==2024.9.11
