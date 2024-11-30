@@ -26,8 +26,8 @@ class MyRegressor(torch.nn.Module):
 
 
 def main(config):
-    wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv05"], config=config)
-    # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv05", "best"], config=config)
+    # wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv05"], config=config)
+    wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, tags=["cv05", "best"], config=config)
 
     tokenizer = AutoTokenizer.from_pretrained(config["model_type"])
 
@@ -38,7 +38,7 @@ def main(config):
         model = MyRegressor(model)
         loss_func = torch.nn.MSELoss()
 
-        data_dir = "data-sts"
+        data_dir = "cv05/data-sts"
         train_data_fp = f"{data_dir}/anlp01-sts-free-train.tsv"
         test_data_fp = f"{data_dir}/anlp01-sts-free-test.tsv"
 
@@ -57,7 +57,7 @@ def main(config):
         model = AutoModelForSequenceClassification.from_pretrained(config["model_type"], num_labels=3)
         loss_func = torch.nn.CrossEntropyLoss()
 
-        data_dir = "data-sentiment"
+        data_dir = "cv05/data-sentiment"
         train_data_fp = f"{data_dir}/csfd-train.tsv"
         test_data_fp = f"{data_dir}/csfd-test.tsv"
 
