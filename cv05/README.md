@@ -94,7 +94,23 @@ The batch size varies. For the STS task, the best sequence length was always 64;
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+![HP](img/best_sts_parallel.svg?raw=true "STS parallel coordinate chart")
 
+On the chart above we can see, that the worst performing model for the STS task was the `ufal/robeczech-base` model.
+
+On the other hand, `UWB-AIR/Czert-B-base-cased` and `fav-kky/FERNET-C5` performed similarly good.
+
+On the next chart we can see the training process of the overall best run for the STS task.
+
+![best](img/best_sts_train_loss.svg?raw=true "STS training loss")
+
+![best](img/best_sts_test_loss.svg?raw=true "STS test loss")
+
+The training loss has a perfect decreasing trend, but the test loss is a bit weird.
+It started to increased after a few epochs, but then it started to decrease again.
+This kind of makes sense, because the model is learning to fit our concrete task, I guess.
+
+(This is `fav-kky/FERNET-C5` model with lr=0.00001, batch_size=32, seq_len=64)
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -102,7 +118,27 @@ The batch size varies. For the STS task, the best sequence length was always 64;
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+![HP](img/best_sentiment_parallel_loss.svg?raw=true "Sentiment parallel coordinate chart")
 
+![HP](img/best_sentiment_parallel_acc.svg?raw=true "Sentiment parallel coordinate chart")
+
+From the charts above we can see that the `UWB-AIR/Czert-B-base-cased` had the highest loss, `ufal/robeczech-base` had the lowest loss.
+
+We can also see that despite the loss, the `UWB-AIR/Czert-B-base-cased` and `ufal/robeczech-base` models had the lowest accuracy.
+
+Clearly, the `fav-kky/FERNET-C5` model was the best for the sentiment task (according to `accuracy` metrics).
+
+On the next chart we can see the training process of the overall best run for the sentiment task.
+
+![best](img/best_sentiment_train_loss.svg?raw=true "Sentiment training loss")
+
+![best](img/best_sentiment_test_loss.svg?raw=true "Sentiment test loss")
+
+![best](img/best_sentiment_test_acc.svg?raw=true "Sentiment test accuracy")
+
+The training loss has a perfect decreasing trend, but the test loss is a lot weirder (even more weird that for the sts task).
+The test accuracy has a perfect increasing trend, which is good.
+I honestly have no idea why the test loss behaves this oddly.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -110,10 +146,35 @@ The batch size varies. For the STS task, the best sequence length was always 64;
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-|                | Baseline          | Czert-B-base-cased | robeczech-base | FERNET-C5 |
-|----------------|-------------------|--------------------|----------------|-----------|
-| sts            | -                 | -                  | -              | -         |
-| sentiment-csfd | -                 | -                  | -              | -         |
+Random model baseline for the STS task (taken from cv02):
+
+|       | MSE Loss (mean ± std dev) |
+|-------|---------------------------|
+| Train | 7.784 ± 0.024             |
+| Test  | 6.230 ± 0.133             |
+
+Any of the following models trained in the cv03 exercise can be taken as a baseline.
+I personally took the `mean` model, because it was supposed to be a baseline in the exercise too:
+
+| MODEL    | TRAIN ACC ± CONFIDENCE INTERVAL | VAL ACC ± CONFIDENCE INTERVAL | TEST ACC ± CONFIDENCE INTERVAL |
+|----------|---------------------------------|-------------------------------|--------------------------------|
+| **mean** | **0.836 ± 0.024**               | **0.759 ± 0.001**             | ***0.755 ± 0.001***            |
+| cnn A    | 0.704 ± 0.030                   | 0.664 ± 0.003                 | *0.657 ± 0.004*                |
+| cnn B    | 0.713 ± 0.043                   | 0.704 ± 0.006                 | ***0.700 ± 0.005***            |
+| cnn C    | 0.767 ± 0.033                   | 0.723 ± 0.003                 | ***0.705 ± 0.002***            |
+
+Results for each model on each task (`sts` -- `test_loss`; `sentiment` -- `test_acc`):
+
+(used confidence for confidence interval calculation is 95 %)
+
+|                | Baseline      | Czert-B-base-cased | robeczech-base | FERNET-C5         |
+|----------------|---------------|--------------------|----------------|-------------------|
+| sts            | 6.230 ± 0.133 | 0.513 ± 0.007      | 0.581 ± 0.017  | **0.500 ± 0.008** |
+| sentiment-csfd | 0.755 ± 0.001 | 0.843 ± 0.002      | 0.843 ± 0.002  | **0.859 ± 0.003** |
+
+(safe to say that `Random model` baseline for `sts` task is obviously way easier to beat than the `Mean model` baseline for the `sentiment` task)
+
+The best performing model overall was the `FERNET-C5` model; I hate to say it, but that is one thing the `kky` did right.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -122,7 +183,11 @@ The baseline is taken from previous exercises in the semester. Please write deta
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
-_MISSING_
+For the STS task, the baseline was a random model, which is easy to beat, but it was also easy to analyze, since the analysis is done in the `cv02` exercise.
+
+For the sentiment task, the baseline was the `mean` model, which was supposed to be a baseline in the `cv03` exercise too.
+In the `cv03` exercise though, it was not beaten by any of the convolutional models, so it is a good baseline (hard to beat).
+In this exercise all the models beat the baseline easily, which just points out that the models are good.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
 
@@ -138,6 +203,19 @@ Jaké další techniky pro stabilnější nebo lepší výsledky jsem použil?
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+The overall "best" model was the `FERNET-C5` model, which was the best for both the tasks.
 
+The parameters I tuned were `learning rate`, `batch size`, and `sequence length` (see above).
+
+![importance](img/importance_test_loss.png?raw=true "Importance")
+
+![importance](img/importance_test_acc.png?raw=true "Importance")
+
+Based on the pictures above, the most important parameter to tune was the `seq_len` from the point of view of the `test_loss` metric.
+From the point of view of the `test_acc` metric, the most important parameter was the `batch_size` and `lr`.
+
+It is safe to say that the grid search was rather small, so all the parameters were equally important.
+
+I did not use any other techniques for better results, the results were good already (at least good enough for me).
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
