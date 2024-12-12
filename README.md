@@ -1,5 +1,11 @@
 [![pipeline status](https://gitlab.kiv.zcu.cz/anlp/ANLP2024-main/badges/main/pipeline.svg)](https://gitlab.kiv.zcu.cz/anlp/ANLP2024-main/-/commits/main) 
 
+# Final Results
+
+| 01 | 02 | 03 | 04 | 05 |
+|----|----|----|----|----|
+| 13   | 23   |  21  |  23  |    |
+
 # ANLP2024 Assignments
 
 Main repository with the semester project templates

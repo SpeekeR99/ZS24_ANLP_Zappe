@@ -4,6 +4,17 @@
 
 **Maximum points:** 20 + 5 (bonus)
 
+
+✅ 18
+
+👍 5
+
+❌ -2
+
+💔 poor legend provided with charts
+
+💔 no table results 
+
 **Contact:** Jan Pašek (pasekj@ntis.zcu.cz) - get in touch with me in case of any problems, but try not to leave
 the problems for the weekends (I can't promise I'll respond during the weekend). Feel free to drop me an email or come to the next lesson
 to discuss your problems. I'm also open to schedule online session in the meantime if you need
@@ -678,16 +689,20 @@ As expected, the LSTM model outperforms the RNN model.
 My runs were run with the default hyperparameters, so the CZERT and SLAVIC models were trained on way less epochs, than RNN and LSTM models, so the following graphs look somewhat weird and bad.
 
 ![MODEL_TYPE_LOSS](img/NER_model_type_eval_loss.svg?raw=True "Losses for different models")
+💔 poor legend
 
 As we can see, LSTM started to get overfit, but it still outperformed the RNN model.
 
 ![MODEL_TYPE_F1](img/NER_model_type_f1.svg?raw=True "F1 scores for different models")
+💔 poor legend
 
 From the F1 scores, we can see, that the pre-trained models were good right from the start,
 whereas the RNN/LSTM models needed some time to get better, but they were not able to catch up
 with the pre-trained models even though, they were trained way longer, than the CZERT/SLAVIC models.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
+
 
 2. Discussion for TAGGING - compare results of the individual models and try to explain why the models achieve the results you observed. Specifically compare the results achieved with RNN/LSTM and CZERT/Slavic.
 
@@ -710,11 +725,13 @@ RNN model once again, the simplest, the worst.
 Here the problem with different epochs is not present, because the dataset was really big and all the models had the same amount of epochs.
 
 ![MODEL_TYPE_LOSS](img/TAGGING_model_type_eval_loss.svg?raw=True "Losses for different models")
+💔 poor legend
 
 From the eval_loss graph, we can see, that the LSTM model did not overfit this time.
 We can once again see how good the pre-trained big models are from the get-go.
 
 ![MODEL_TYPE_F1](img/TAGGING_model_type_f1.svg?raw=True "F1 scores for different models")
+💔 poor legend
 
 On the F1 scores graph, we can see, that the pre-trained big models are constantly good, but we can focus
 on the LSTM model and see, that it is getting better and better, by the end of the training it was almost
@@ -723,6 +740,7 @@ as good as CZERT or SLAVIC (same for eval_loss graph above).
 This surprises me a bit, because I would not expect LSTM to be that good, but it is really good.
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer end`
+
 
 ### Section 7 - Extended Experiments Results (Bonus)
 
@@ -737,8 +755,10 @@ I would expect CZERT with trainable embeddings to be the best, because it can le
 On the other hand, I would expect BERT with frozen embeddings to be the worst, because it cannot learn the embeddings and it was trained on English data.
 
 ![FREEZE](img/Freeze_emb_eval_loss.svg?raw=True "Losses for different models")
+💔 poor legend
 
 ![FREEZE](img/Freeze_emb_f1.svg?raw=True "F1 scores for different models")
+💔 poor legend
 
 From the graphs above, we can see, that my expectations were correct.
 
@@ -756,8 +776,10 @@ I would expect the model to perform worse for frozen lower layers, but I do not 
 just an intuition; I also do not have much experience with this, so I cannot really say for sure.
 
 ![FREEZE](img/Freeze_first_eval_loss.svg?raw=True "Losses for different models")
+💔 poor legend
 
 ![FREEZE](img/Freeze_first_f1.svg?raw=True "F1 scores for different models")
+💔 poor legend
 
 From the loss graph, it may seem, that the model with 0 frozen layers was the "worst".
 On the F1 graph, all the models seem to be more or less the same (the losses were not that different either).
@@ -778,9 +800,11 @@ So the answer is no, I do not see any result improvement / impairment when freez
 
 ![#000800](https://placehold.co/15x15/008000/008000.png) `Answer begin`
 
+
 I would expect the frozen models to train faster, because they have less parameters to train.
 
 ![FREEZE](img/Freeze_first_runtime.svg?raw=True "Losses for different models")
+💔 poor legend
 
 The graph above does not support my intuition at all. In fact the most frozen model has the highest runtime.
 This is really odd and I do not know how to interpret / explain this.

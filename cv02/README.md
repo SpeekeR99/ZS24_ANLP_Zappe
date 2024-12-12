@@ -4,6 +4,13 @@
 
 *Maximum points:* 20+5
 
+✅ 18
+
+👍 5
+
+❌ -2  💔,💔,💔,💔,💔 a pět zlomených srdcí...
+
+
 ------------------------------------------------------------------------
 
 The Goal
@@ -411,6 +418,8 @@ Let's do a closer analysis for each of the HPs:
     - Overall best learning rate turned out to be 0.01 in the combination with the optimizer Adam.
     - ![Group by learning rate](./img/test_loss_groupby_lr.svg?raw=true "Group by learning rate")
     - (Note that the learning rate of 0.1 is not in the chart, because it was so bad, that it was not even in the scope of the chart)
+    - 💔nice chart but no labels..
+
 3. `optimizer`:
     - Adam performed the best with the learning rate of 0.01.
     - (Once again groupby chart would not show much here, because Adam just outperformed sgd so much, that it is out of scope)
@@ -418,6 +427,7 @@ Let's do a closer analysis for each of the HPs:
     - I personally did not have any assumptions about this parameter, because I did not know much about LR decay up until now.
     - ![Group by learning rate scheduler](./img/test_loss_groupby_lr_scheduler.svg?raw=true "Group by learning rate scheduler")
     - As we can clearly see, multiStepLR performed better than exponentialLR for this task.
+    - 💔nice chart but no labels..
 5. `random_emb`:
     - Here I personally thought, that the randomly initialized embedding would not be as good as the pretrained ones.
     - ![Group by random embedding](./img/test_loss_groupby_random_emb.svg?raw=true "Group by random embedding")
@@ -427,21 +437,25 @@ Let's do a closer analysis for each of the HPs:
     - With this parameter, I personally expected the model to perform better with trained/trainable embeddings.
     - ![Group by embedding training](./img/test_loss_groupby_emb_training.svg?raw=true "Group by embedding training")
     - The chart above again supports my assumption.
+    - 💔nice chart but no labels..
 7. `emb_projection`:
     - I expected the model to be better with the projection layer, it just made sense this way.
     - ![Group by embedding projection](./img/test_loss_groupby_emb_projection.svg?raw=true "Group by embedding projection")
     - As we can see from the chart, my assumption was correct.
     - Not only from the chart, but also from the table above, all the best models had this parameter be True.
+    - 💔nice chart but no labels..
 8. `final_metric`:
     - Here I believed that cosine similarity would be really good, but I expected that the neural metric head would "learn" some hidden patterns between the vectors, something possibly better than just "angle" (?! if possible).
     - ![Group by final metric](./img/test_loss_groupby_final_metric.svg?raw=true "Group by final metric")
     - Here I somehow don't believe the chart above. I believe that the neural head should outperform cosine similarity, but the curve of cosine similarity is just constant.
     - I believe the last 50 runs might have been my mentioned combination which doesn't have anything to learn, so it just outputs "constant" loss (a bit different for each batch of course, but still, constant) -- so the chart might be lying to us here.
+    - 💔nice chart but no labels..
 9. `vocab_size`:
     - Here I thought that bigger vocabulary would be better, as the model "knows" more.
     - ![Group by vocab size](./img/test_loss_groupby_vocab_size.svg?raw=true "Group by vocab size")
     - Here my assumption was not really that correct, or we would need deeper analysis, bigger grid search with more options for this parameter.
     - But this parameter seems to have little to no effect on the test loss.
+    - 💔nice chart but no labels..
 
 ![Parameter importance](./img/test_loss_parameter_importance.png?raw=true "Parameter importance")
 

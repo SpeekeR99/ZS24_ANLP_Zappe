@@ -4,6 +4,14 @@
 
 *Maximum points:* 
 
+
+✅ 18
+
+👍 3
+
+❌ -2 💔,💔,💔,💔,💔,💔, a spoustu zlomených srdcí
+
+
 The Goal
 ========
 
@@ -459,6 +467,7 @@ for this reason I will be also adding charts of `val_acc`, where the trends and 
     - ![Model](img/val_acc_groupby_model.svg?raw=True "Model")
     - The `mean` model seems to be outpeforming the `cnn` models by a little bit.
     - This is also supported by the runs with the `best` tag.
+    - 💔nice chart but no labels..
 2. `batches`:
     - I cannot really show any good chart here, because none of the `cnn` models were able to finish in time for `batches` = 20 000 nor 10 000.
     - For this reason, the other values are biased, because the `mean` model was able to finish on them, and some good `cnn` models too (mostly `batches` = 2 000 is biased and has the most finished runs).
@@ -472,6 +481,7 @@ for this reason I will be also adding charts of `val_acc`, where the trends and 
 it will also occur on the next graphs -- how I understand it -- only `mean` models got to the 20k steps mark, `cnn` models took longer to train and were killed by the walltime on Meta.
 So the models, that got to the 20k steps had better accuracy, because on average, they are only `mean` models (good models), but the models that got to the 10k steps -- those are combined `mean` and `cnn` models, so the accuracy is lower on average.
 This phenomena creates a big step in the middle-ground where we have no idea / data about the models, that is compensated visually by the linear part of the curve)
+- 💔nice chart but no labels..
 4. `learning_rate`:
     - I have tried learning rates 0.001, 0.0001, 0.00001, 0.000001. and I personally expected the 0.001 (highest one) to be the best.
     - ![Learning Rate](img/test_acc_groupby_lr.svg?raw=True "Learning Rate")
@@ -479,6 +489,7 @@ This phenomena creates a big step in the middle-ground where we have no idea / d
     - The `learning_rate` = 0.0001 seems to be the best, but my choice (0.001) is not that far behind (from the `test_acc` perspective).
     - Judging by the `val_acc` chart tho, the `learning_rate` = 0.001 might have been the best choice.
     - This parameter (similarly to batch_size), might have been proficient to explore further with maybe bigger values (0.01, or even 0.1).
+    - 💔nice chart but no labels..
 5. `activation`:
     - I have tried `ReLU` and `GELU` activations.
     - Since both are very similar, I had no preference here.
@@ -493,6 +504,8 @@ This phenomena creates a big step in the middle-ground where we have no idea / d
     - To my surprise, they both seem to be very similar (again, as last exercise).
     - What is more, the random initialization seems to be very slightly better.
     - What is interesting to me, that can be seen from the `val_acc` chart, is that given enough time (20k+ steps), the random embeddings become superior to the pretrained ones.
+    - 💔nice chart but no labels..
+    
 On the other hand, given less time (10k- steps), there is not enough time for the random embeddings to learn enough, so the pretrained embeddings end up being better.
 This makes total sense to me, apart from the logic of random embeddings being overall better, I really expected pretrained and fine-tuned ones to be way better.
 7. `emb_training`:
@@ -508,6 +521,8 @@ This makes total sense to me, apart from the logic of random embeddings being ov
     - ![Emb Projection](img/val_acc_groupby_emb_projection.svg?raw=True "Emb Projection")
     - And it is, the projection of embeddings seems to be better off.
     - And again, this is supported yet again by the runs with the `best` tag.
+    - 💔nice chart but no labels..
+
 9. `cnn_architecture`:
     - Here, it is interesting, because my architecture `A` has kernel sizes `(x, 1)`, architecture `B` has kernel sizes `(x, reduced_emb_size / 2)`, and architecture `C` has kernel sizes `(x, reduced_emb_size)`.
     - So it is the matter of the kernel sizes and I personally the middle ground -- `B` -- to be the best. Simply because `A` pays too much attention to details -- the words themselves, and `C` pays almost no attention to detail -- pays attention to the whole sentences (?).
