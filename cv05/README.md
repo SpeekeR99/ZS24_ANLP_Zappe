@@ -1,5 +1,13 @@
 # KIV / ANLP Exercise 05
 
+
+✅ 20
+
+👍
+
+❌ 
+
+
 *Maximum points: 20 + 5* 
 **Deadline**: 15. 12. 2023 23:59:59
 
@@ -109,6 +117,8 @@ On the next chart we can see the training process of the overall best run for th
 The training loss has a perfect decreasing trend, but the test loss is a bit weird.
 It started to increased after a few epochs, but then it started to decrease again.
 This kind of makes sense, because the model is learning to fit our concrete task, I guess.
+ 
+👍💔 -- I would log with smaller granularity (several batches with large models) -- you could see more interesting progress during the first epoch. Isn't it rather strange that test loss is the best after the first epoch...?
 
 (This is `fav-kky/FERNET-C5` model with lr=0.00001, batch_size=32, seq_len=64)
 
@@ -173,6 +183,8 @@ Results for each model on each task (`sts` -- `test_loss`; `sentiment` -- `test_
 | sentiment-csfd | 0.755 ± 0.001 | 0.843 ± 0.002      | 0.843 ± 0.002  | **0.859 ± 0.003** |
 
 (safe to say that `Random model` baseline for `sts` task is obviously way easier to beat than the `Mean model` baseline for the `sentiment` task)
+
+💔 It would be better to use stronger baseline for STS. This table would look better. 
 
 The best performing model overall was the `FERNET-C5` model; I hate to say it, but that is one thing the `kky` did right.
 
